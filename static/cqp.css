@@ -1,0 +1,43 @@
+#query_form {
+  margin: 0px -400px;
+  position: absolute;
+  top: 10%;
+  left: 50%;
+  width: 800px;
+  height: 0px;
+  text-align: center;
+}
+
+#query {
+  width: 380px;
+  text-align: center;
+}
+
+.button {
+  padding: 4px;
+  border-radius: 6px;
+  border:1px solid grey;
+  font-size: 13px;
+  background-color: white;
+}
+.button:hover {
+  font-weight: bold;
+}
+.button:active{
+  box-shadow: 1px 1px 10px black inset, 0 1px 0 rgba( 255, 255, 255, 0.4);
+}
+
+.unit {
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+#table {
+  margin-top: 40px;
+}
+
+caption {
+  margin-bottom: 20px;
+  font-size: 16px;
+  text-align: left;
+}

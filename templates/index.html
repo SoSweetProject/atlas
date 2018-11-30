@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+
+<html>
+
+  <head>
+    <title> Test CQP </title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="../static/cqp.css" />
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css" />
+  </head>
+
+  <body>
+    <div id="query_form">
+      <form id="form">
+        <h2> Requête CQP </h2>
+        <br/>
+        <label> Requête : </label>
+        <input type="text" id="query" name="query"/>
+        <br/>
+        <label> Afficher les : </label>
+        <input type="radio" class="unit" id="tokens" name="unit" value="tokens" checked> <label> Tokens </label>
+        <input type="radio" class="unit" id="pos" name="unit" value="pos"> <label> POS </label>
+        <input type="radio" class="unit" id="lemmes" name="unit" value="lemmas"> <label> Lemmes </label>
+        <br/>
+        <input class="button" type="submit" value="Envoyer"/>
+      </form>
+
+      <div id="result">
+      </div>
+
+      <table id="table" class="display compact" cellspacing=0>
+        <caption id="caption"> Résultats de la requête </caption>
+        <thead>
+          <tr>
+            <th> Contexte Gauche </th>
+            <th> Motif recherché </th>
+            <th> Contexte droit </th>
+          </tr>
+        </thead>
+      </table>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+    <script src="../static/cqp.js"></script>
+  </body>
+
+</html>

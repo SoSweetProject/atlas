@@ -1,0 +1,5 @@
+[console_scripts]
+cqp2conll = CWB.tools.cqp2conll:main
+cqp_bitext = CWB.tools.make_bitext:main
+cqp_vocab = CWB.tools.cqp2vocab:cqp2vocab_main
+
