@@ -2,12 +2,39 @@
 
 from flask import Flask, url_for, render_template, request
 from os.path import basename, splitext
+from collections import defaultdict,OrderedDict
+from scipy.stats import hypergeom
 from CWB.CL import Corpus
 import PyCQP_interface
+import pandas as pd
+import numpy as np
 import ujson
 import sys
+import re
 
-corpus_list = ["dep_1.vrt", "dep_10.vrt", "dep_11.vrt", "dep_12.vrt", "dep_13.vrt", "dep_14.vrt", "dep_15.vrt", "dep_16.vrt", "dep_17.vrt", "dep_18.vrt", "dep_19.vrt", "dep_2.vrt", "dep_21.vrt", "dep_22.vrt", "dep_23.vrt", "dep_24.vrt", "dep_25.vrt", "dep_26.vrt", "dep_27.vrt", "dep_28.vrt", "dep_29.vrt", "dep_2a.vrt", "dep_2b.vrt", "dep_3.vrt", "dep_30.vrt", "dep_31.vrt", "dep_32.vrt", "dep_33.vrt", "dep_34.vrt", "dep_35.vrt", "dep_36.vrt", "dep_37.vrt", "dep_38.vrt", "dep_39.vrt", "dep_4.vrt", "dep_40.vrt", "dep_41.vrt", "dep_42.vrt", "dep_43.vrt", "dep_44.vrt", "dep_45.vrt", "dep_46.vrt", "dep_47.vrt", "dep_48.vrt", "dep_49.vrt", "dep_5.vrt", "dep_50.vrt", "dep_51.vrt", "dep_52.vrt", "dep_53.vrt", "dep_54.vrt", "dep_55.vrt", "dep_56.vrt", "dep_57.vrt", "dep_58.vrt", "dep_59.vrt", "dep_6.vrt", "dep_60.vrt", "dep_61.vrt", "dep_62.vrt", "dep_63.vrt", "dep_64.vrt", "dep_65.vrt", "dep_66.vrt", "dep_67.vrt", "dep_68.vrt", "dep_69.vrt", "dep_7.vrt", "dep_70.vrt", "dep_71.vrt", "dep_72.vrt", "dep_73.vrt", "dep_74.vrt", "dep_75.vrt", "dep_76.vrt", "dep_77.vrt", "dep_78.vrt", "dep_79.vrt", "dep_8.vrt", "dep_80.vrt", "dep_81.vrt", "dep_82.vrt", "dep_83.vrt", "dep_84.vrt", "dep_85.vrt", "dep_86.vrt", "dep_87.vrt", "dep_88.vrt", "dep_89.vrt", "dep_9.vrt", "dep_90.vrt", "dep_91.vrt", "dep_92.vrt", "dep_93.vrt", "dep_94.vrt", "dep_95.vrt"]
+corpus_list = ["old_dep_1.vrt", "old_dep_10.vrt", "old_dep_11.vrt", "old_dep_12.vrt", "old_dep_13.vrt", "old_dep_14.vrt", "old_dep_15.vrt", "old_dep_16.vrt", "old_dep_17.vrt", "old_dep_18.vrt", "old_dep_19.vrt", "old_dep_2.vrt", "old_dep_21.vrt", "old_dep_22.vrt", "old_dep_23.vrt", "old_dep_24.vrt", "old_dep_25.vrt", "old_dep_26.vrt", "old_dep_27.vrt", "old_dep_28.vrt", "old_dep_29.vrt", "old_dep_2a.vrt", "old_dep_2b.vrt", "old_dep_3.vrt", "old_dep_30.vrt", "old_dep_31.vrt", "old_dep_32.vrt", "old_dep_33.vrt", "old_dep_34.vrt", "old_dep_35.vrt", "old_dep_36.vrt", "old_dep_37.vrt", "old_dep_38.vrt", "old_dep_39.vrt", "old_dep_4.vrt", "old_dep_40.vrt", "old_dep_41.vrt", "old_dep_42.vrt", "old_dep_43.vrt", "old_dep_44.vrt", "old_dep_45.vrt", "old_dep_46.vrt", "old_dep_47.vrt", "old_dep_48.vrt", "old_dep_49.vrt", "old_dep_5.vrt", "old_dep_50.vrt", "old_dep_51.vrt", "old_dep_52.vrt", "old_dep_53.vrt", "old_dep_54.vrt", "old_dep_55.vrt", "old_dep_56.vrt", "old_dep_57.vrt", "old_dep_58.vrt", "old_dep_59.vrt", "old_dep_6.vrt", "old_dep_60.vrt", "old_dep_61.vrt", "old_dep_62.vrt", "old_dep_63.vrt", "old_dep_64.vrt", "old_dep_65.vrt", "old_dep_66.vrt", "old_dep_67.vrt", "old_dep_68.vrt", "old_dep_69.vrt", "old_dep_7.vrt", "old_dep_70.vrt", "old_dep_71.vrt", "old_dep_72.vrt", "old_dep_73.vrt", "old_dep_74.vrt", "old_dep_75.vrt", "old_dep_76.vrt", "old_dep_77.vrt", "old_dep_78.vrt", "old_dep_79.vrt", "old_dep_8.vrt", "old_dep_80.vrt", "old_dep_81.vrt", "old_dep_82.vrt", "old_dep_83.vrt", "old_dep_84.vrt", "old_dep_85.vrt", "old_dep_86.vrt", "old_dep_87.vrt", "old_dep_88.vrt", "old_dep_89.vrt", "old_dep_9.vrt", "old_dep_90.vrt", "old_dep_91.vrt", "old_dep_92.vrt", "old_dep_93.vrt", "old_dep_94.vrt", "old_dep_95.vrt"]
+
+# calcule les spécificités pour le motif recherché
+def specificities(freqMotifParDep) :
+    freqTot = 32241194
+    freqTotParDep = pd.read_hdf('./static/freqByDep.hdf', 'freqTokensByDep')
+    freqTotMotif = freqMotifParDep.sum().sum()
+    df_freqTotMotif = pd.DataFrame(freqMotifParDep.sum(axis=1), columns=["0"])
+    expectedCounts = df_freqTotMotif.dot(freqTotParDep)/freqTot
+    specif = freqMotifParDep.copy()
+    for dep in freqMotifParDep.columns :
+        if (freqMotifParDep.loc["freq",dep]<expectedCounts.loc["freq",dep]) :
+            specif.loc["freq",dep]=hypergeom.cdf(freqMotifParDep.loc["freq",dep], freqTot, freqTotMotif, freqTotParDep.transpose().loc[dep])
+        else:
+            specif.loc["freq",dep]=1-hypergeom.cdf(freqMotifParDep.loc["freq",dep]-1, freqTot, freqTotMotif, freqTotParDep.transpose().loc[dep])
+    specif=np.log10(specif)
+    specif[freqMotifParDep>=expectedCounts]=-specif[freqMotifParDep>=expectedCounts]
+    for dep in specif :
+        specif.loc[specif[dep] > 10,dep] = 10
+        specif.loc[specif[dep] < -10,dep] = -10
+    specif.rename(index={"freq":"specif"},inplace=True)
+    specif = pd.DataFrame.to_dict(specif)
+    return specif
 
 # reconstitue les chaînes de caractères à partir d'une liste de tokens
 def reconstituteString(tok_list) :
@@ -51,6 +78,14 @@ def query():
 
     registry_dir="/usr/local/share/cwb/registry"
     cqp=PyCQP_interface.CQP(bin='/usr/local/bin/cqp',options='-c -r '+registry_dir)
+
+    freqParDepartement = defaultdict(int)
+    for dep in corpus_list :
+        n = re.match(r".*_(\d+[ab]?)\.vrt",dep)
+        dep = n.group(1)
+    if (re.match(r"^\d$",dep)) :
+        dep="0"+dep
+        freqParDepartement[dep.upper()]
 
     for corpus in corpus_list :
         corpus_name=splitext(basename(corpus))[0].upper()
@@ -110,7 +145,7 @@ def query():
                 result={"id" : id_bounds[-1],
                         "date" : date_bounds[-1].decode("utf8"),
                         "geo" : coord,
-                        "dep" : corpus_name.split("_")[1],
+                        "dep" : corpus_name.split("_")[2],
                         "user" : user_bounds[-1],
                         "query_result" : {
                             "tokens" : {
@@ -161,7 +196,23 @@ def query():
                     result["query_result"]["lemmas"]["right_context"].append(lemmas[rp])
                 result["query_result"]["tokens_reconstituted"]["right_context"]=reconstituteString(result["query_result"]["tokens"]["right_context"])
 
-    # conversion au format json
-    query_result=ujson.dumps(query_result)
+    # calcul des spécificités
+    for r in query_result :
+        if (re.match(r"^\d$",r["dep"])) :
+            dep="0"+r["dep"]
+        else :
+            dep=r["dep"]
+        freqParDepartement[dep]+=1
+    freqParDepartementOrdered = OrderedDict(sorted(freqParDepartement.items(), key=lambda t: t[0]))
 
-    return query_result
+    df_queryFreq = pd.DataFrame(freqParDepartementOrdered, index=["freq"]).fillna(0)
+    specif = specificities(df_queryFreq)
+
+    # conversion au format json
+
+    resultAndSpec = {}
+    resultAndSpec["result"]=query_result
+    resultAndSpec["specif"]=specif
+    resultAndSpec=ujson.dumps(resultAndSpec)
+
+    return resultAndSpec

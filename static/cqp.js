@@ -24,21 +24,23 @@ function responseDisplay(response) {
   response=JSON.parse(response);
   datas=[];
 
-  for (element in response) {
+  console.log(response["specif"])
+
+  for (element in response["result"]) {
 
     result={};
 
-    patternTokens=patternTokens=response[element]["query_result"]["tokens_reconstituted"]["pattern"];
-    lcTokens=response[element]["query_result"]["tokens_reconstituted"]["left_context"];
-    rcTokens=response[element]["query_result"]["tokens_reconstituted"]["right_context"];
+    patternTokens=patternTokens=response["result"][element]["query_result"]["tokens_reconstituted"]["pattern"];
+    lcTokens=response["result"][element]["query_result"]["tokens_reconstituted"]["left_context"];
+    rcTokens=response["result"][element]["query_result"]["tokens_reconstituted"]["right_context"];
 
-    patternPos=response[element]["query_result"]["pos"]["pattern"].join(" ");
-    lcPos=response[element]["query_result"]["pos"]["left_context"].join(" ");
-    rcPos=response[element]["query_result"]["pos"]["right_context"].join(" ");
+    patternPos=response["result"][element]["query_result"]["pos"]["pattern"].join(" ");
+    lcPos=response["result"][element]["query_result"]["pos"]["left_context"].join(" ");
+    rcPos=response["result"][element]["query_result"]["pos"]["right_context"].join(" ");
 
-    patternLemmas=response[element]["query_result"]["lemmas"]["pattern"].join(" ");
-    lcLemmas=response[element]["query_result"]["lemmas"]["left_context"].join(" ");
-    rcLemmas=response[element]["query_result"]["lemmas"]["right_context"].join(" ");
+    patternLemmas=response["result"][element]["query_result"]["lemmas"]["pattern"].join(" ");
+    lcLemmas=response["result"][element]["query_result"]["lemmas"]["left_context"].join(" ");
+    rcLemmas=response["result"][element]["query_result"]["lemmas"]["right_context"].join(" ");
 
     if (document.getElementById("tokens").checked) {
       result = {"left_context":"<span title=\""+lcPos+"&#10;"+lcLemmas+"\">"+lcTokens+"</span>",
