@@ -1,16 +1,41 @@
-#query_form {
-  margin: 0px -400px;
-  position: absolute;
-  top: 10%;
-  left: 50%;
-  width: 800px;
-  height: 0px;
+.row {
+  margin-top : 20px;
+}
+
+#form {
+  margin: auto;
   text-align: center;
+  margin-bottom: 20px;
+}
+
+#map {
+  width : 400px;
+  height : 400px;
 }
 
 #query {
   width: 380px;
   text-align: center;
+}
+
+.legend {
+    line-height : 18px;
+    color : #555;
+    background-color : #efefef;
+    opacity : 0.9;
+    border-width : thin;
+    font-size: 9px;
+}
+.legend i {
+    width : 10px;
+    height : 12px;
+    float : left;
+    margin-right : 8px;
+    opacity : 0.7;
+}
+.legend p {
+  margin: auto;
+  margin-bottom: -6px;
 }
 
 .button {
@@ -27,17 +52,16 @@
   box-shadow: 1px 1px 10px black inset, 0 1px 0 rgba( 255, 255, 255, 0.4);
 }
 
-.unit {
-  margin-top: 20px;
-  margin-bottom: 20px;
-}
-
 #table {
-  margin-top: 40px;
+  font-size: 11px;
+  text-align: center;
 }
 
 caption {
-  margin-bottom: 20px;
-  font-size: 16px;
+  font-size: 11px;
   text-align: left;
+}
+
+.dataTables_info, .dataTables_paginate {
+  font-size: 11px;
 }

@@ -1,75 +1,160 @@
 var myForm = document.getElementById('form');
+var departements;
+var stat = false;
+var specif;
+var data;
+var freq;
+var dep;
 
+// Style des départements sur la carte par défaut
+var defaultStyle = {
+  weight: 1,
+  color: '#77af75',
+  fillColor: '#77af75',
+  dashArray: '',
+  fillOpacity: 0.3
+}
+
+// Mise en place de la carte
+var map = L.map("map").setView([46.227638, 2.213749000000007], 5);
+var mapboxAccessToken = 'pk.eyJ1Ijoic2F0aWxsb3ciLCJhIjoiY2prYjhsenI2Mnl2dDNycXFxdXQ1YWxpNyJ9.ah5XcUxTiKF4xWs8CKLPrQ';
+L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
+  attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+  maxZoom: 8,
+  minZoom: 5,
+  id: 'mapbox.light',
+  accessToken: mapboxAccessToken
+}).addTo(map);
+
+// Récupération et ajout des départements
+$.ajax({
+  method: "POST",
+  url: "/departements",
+  dataType: "json",
+  success: function(response) {
+    departements = L.geoJson(response, {
+      onEachFeature: onEachFeature,
+      style: getDefaultStyle
+    });
+    departements.addTo(map);
+  }
+});
+
+// apparence par défaut
+function getDefaultStyle(e) {
+  return defaultStyle;
+}
+
+// Indication de ce qu'il se passe au survol de la souris sur les départements
+function onEachFeature(feature, layer) {
+  layer.on({
+    mouseover: showdepartementPopup,
+    mouseout: function(e) {
+      map.closePopup()
+    }
+  });
+}
+
+// Popups
+function showdepartementPopup(e) {
+  var popup = L.popup()
+    .setLatLng(e.latlng)
+    .setContent(e.target.feature.properties.code + ' - ' + e.target.feature.properties.nom)
+    .openOn(map);
+}
+
+// Retourne la couleur associée à la spécificité indiquée
+function color(s) {
+  colors = ['#053061', '#2166ac', '#4393c3', '#92c5de', '#d1e5f0', '#f7f7f7', '#fddbc7', '#f4a582', '#d6604d', '#b2182b', '#67001f'];
+  return colors[parseInt((s + 10) / 2)]
+}
+
+// Légende de la carte
+var legend = L.control({
+  position: 'topright',
+  id: 'legend'
+});
+legend.onAdd = function(map) {
+  var div = L.DomUtil.create('div', 'info legend'),
+    grades = [10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0, -1, -2, -3, -4, -5, -6, -7, -8, -9, -10];
+  div.id = 'legend'
+  div.innerHTML = "<b>Overused</b><br>";
+  for (var i = 0; i < grades.length; i++) {
+    div.innerHTML +=
+      '<i style="background:' + color(grades[i]) + '"></i> <p> ' +
+      grades[i]+' </p>';
+  }
+  div.innerHTML += "<b>Underused</b>";
+  return div;
+};
+legend.addTo(map);
+
+// Initialisation de la dataTable qui contiendra les résultats de la requête
 function initTable() {
   var table = $("#table").DataTable({
     "bFilter": false,
     "bInfos": false,
     columns: [{
-        data: "left_context"
+        data: "left_context",
+        width: "35%"
       },
       {
-        data: "pattern"
+        data: "pattern",
+        width: "20%"
       },
       {
-        data: "right_context"
+        data: "right_context",
+        width: "35%"
       },
+      {
+        data: "dep",
+        width: "5%"
+      },
+      {
+        data: "date",
+        width: "5%"
+      }
     ],
     "pageLength": 20,
     "bLengthChange": false
   });
 }
 
+// Traitement de la réponse
 function responseDisplay(response) {
 
   response=JSON.parse(response);
   datas=[];
 
-  console.log(response["specif"])
-
-  for (element in response["result"]) {
-
-    result={};
-
-    patternTokens=patternTokens=response["result"][element]["query_result"]["tokens_reconstituted"]["pattern"];
-    lcTokens=response["result"][element]["query_result"]["tokens_reconstituted"]["left_context"];
-    rcTokens=response["result"][element]["query_result"]["tokens_reconstituted"]["right_context"];
-
-    patternPos=response["result"][element]["query_result"]["pos"]["pattern"].join(" ");
-    lcPos=response["result"][element]["query_result"]["pos"]["left_context"].join(" ");
-    rcPos=response["result"][element]["query_result"]["pos"]["right_context"].join(" ");
-
-    patternLemmas=response["result"][element]["query_result"]["lemmas"]["pattern"].join(" ");
-    lcLemmas=response["result"][element]["query_result"]["lemmas"]["left_context"].join(" ");
-    rcLemmas=response["result"][element]["query_result"]["lemmas"]["right_context"].join(" ");
-
-    if (document.getElementById("tokens").checked) {
-      result = {"left_context":"<span title=\""+lcPos+"&#10;"+lcLemmas+"\">"+lcTokens+"</span>",
-                "pattern":"<span title=\""+patternPos+"&#10;"+patternLemmas+"\">"+patternTokens+"</span>",
-                "right_context":"<span title=\""+rcPos+"&#10;"+rcLemmas+"\">"+rcTokens+"</span>"};
-    }
-
-    if (document.getElementById("pos").checked) {
-      result = {"left_context":"<span title=\""+lcTokens+"&#10;"+lcLemmas+"\">"+lcPos+"</span>",
-                "pattern":"<span title=\""+patternTokens+"&#10;"+patternLemmas+"\">"+patternPos+"</span>",
-                "right_context":"<span title=\""+rcTokens+"&#10;"+rcLemmas+"\">"+rcPos+"</span>"};
-    }
-
-    if (document.getElementById("lemmes").checked) {
-      result = {"left_context":"<span title=\""+lcPos+"&#10;"+lcTokens+"\">"+lcLemmas+"</span>",
-                "pattern":"<span title=\""+patternPos+"&#10;"+patternTokens+"\">"+patternLemmas+"</span>",
-                "right_context":"<span title=\""+rcPos+"&#10;"+rcTokens+"\">"+rcLemmas+"</span>"};
-    }
-
-    datas.push(result);
-
+  // Si la requête n'a pas donné de résultats
+  if (response["result"].toSource()=="[]") {
+    alert("Aucun résultat pour cette requête");
+    departements.eachLayer(function(layer) {
+      layer.setStyle(defaultStyle);
+    })
   }
 
+  // Coloration de la carte en fonction des spécificités du motif recherché par département
+  departements.eachLayer(function(layer) {
+    style = {
+      fillColor: color(response["specif"][layer.feature.properties.code]["specif"]),
+      weight: 2,
+      opacity: 1,
+      color: 'white',
+      dashArray: '3',
+      fillOpacity: 0.7
+    };
+    layer.setStyle(style);
+  })
+
+  // Ajout des résultats obtenus dans la dataTable
   $("#table").DataTable().clear();
-  $("#table").DataTable().rows.add(datas).draw();
+  $("#table").DataTable().rows.add(response["result"]).draw();
 }
 
 $(document).ready(initTable())
 
+// Envoi de la requête (cf. cqp.py)
 myForm.addEventListener('submit', function(e) {
   $.ajax({
       type: "POST",
@@ -78,11 +163,7 @@ myForm.addEventListener('submit', function(e) {
         query: $("#query").val()
       },
       success: function(response) {
-        if (response == "[]") {
-          alert("Aucun résultat pour cette requête");
-        } else {
-          data = responseDisplay(response);
-        }
+        data = responseDisplay(response);
       }
     })
   e.preventDefault();
