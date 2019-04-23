@@ -95,6 +95,11 @@ function initTable() {
     "bFilter": false,
     "bInfos": false,
     columns: [{
+        data:"hide_column",
+        visible: false
+      },
+      {
+        orderData: [0],
         data: "left_context",
         width: "35%"
       },

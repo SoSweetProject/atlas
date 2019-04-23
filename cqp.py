@@ -91,6 +91,7 @@ def f(corpus,query):
                     "geo" : coord,
                     "dep" : dep,
                     "user" : user_bounds[-1],
+                    "hide_column" : "",
                     "left_context" : "",
                     "pattern" : "",
                     "right_context" : ""}
@@ -126,6 +127,7 @@ def f(corpus,query):
             rc_lemmas=" ".join(rc_lemmas)
 
             # mise en forme ici pour ne pas ajouter du temps de traitement côté client
+            result["hide_column"]=lc_tokens[::-1]
             result["left_context"]="<span title=\""+lc_pos+"&#10;"+lc_lemmas+"\">"+lc_tokens+"</span>"
             result["pattern"]="<span title=\""+pattern_pos+"&#10;"+pattern_lemmas+"\">"+pattern_tokens+"</span>"
             result["right_context"]="<span title=\""+rc_pos+"&#10;"+rc_lemmas+"\">"+rc_tokens+"</span>"
