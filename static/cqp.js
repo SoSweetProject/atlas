@@ -128,16 +128,7 @@ function initTable() {
 // Traitement de la réponse
 function responseDisplay(response) {
 
-  response=JSON.parse(response);
   datas=[];
-
-  // Si la requête n'a pas donné de résultats
-  if (response["result"].toSource()=="[]") {
-    alert("Aucun résultat pour cette requête");
-    departements.eachLayer(function(layer) {
-      layer.setStyle(defaultStyle);
-    })
-  }
 
   // Coloration de la carte en fonction des spécificités du motif recherché par département
   departements.eachLayer(function(layer) {
@@ -168,7 +159,17 @@ myForm.addEventListener('submit', function(e) {
         query: $("#query").val()
       },
       success: function(response) {
-        data = responseDisplay(response);
+        response=JSON.parse(response);
+        // Si la requête n'a pas donné de résultats
+        if (response["result"].toSource()=="[]") {
+          alert("Aucun résultat pour cette requête");
+          departements.eachLayer(function(layer) {
+            layer.setStyle(defaultStyle);
+          })
+          $('#table').dataTable().fnClearTable();
+        } else {
+          data = responseDisplay(response);
+        }
       }
     })
   e.preventDefault();
