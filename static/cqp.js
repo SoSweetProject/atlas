@@ -149,9 +149,13 @@ function responseDisplay(response) {
 }
 
 $(document).ready(initTable())
+document.getElementById('loader').style.visibility='hidden';
 
 // Envoi de la requête (cf. cqp.py)
 myForm.addEventListener('submit', function(e) {
+  $('form :submit').attr("disabled", true);
+  document.getElementById('button').style.visibility='hidden';
+  document.getElementById('loader').style.visibility='visible';
   $.ajax({
       type: "POST",
       url: "/query",
@@ -170,6 +174,9 @@ myForm.addEventListener('submit', function(e) {
         } else {
           data = responseDisplay(response);
         }
+        document.getElementById('loader').style.visibility='hidden';
+        document.getElementById('button').style.visibility='visible';
+        $('form :submit').attr("disabled", false);
       }
     })
   e.preventDefault();
