@@ -16,7 +16,7 @@ var defaultStyle = {
 }
 
 // Mise en place de la carte
-var map = L.map("map").setView([46.227638, 2.213749000000007], 5);
+var map = L.map("map").setView([46.4, 2.35], 6);
 var mapboxAccessToken = 'pk.eyJ1Ijoic2F0aWxsb3ciLCJhIjoiY2prYjhsenI2Mnl2dDNycXFxdXQ1YWxpNyJ9.ah5XcUxTiKF4xWs8CKLPrQ';
 L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
   attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
@@ -101,7 +101,7 @@ function initTable() {
       {
         orderData: [0],
         data: "left_context",
-        width: "35%"
+        width: "37%"
       },
       {
         data: "pattern",
@@ -109,16 +109,12 @@ function initTable() {
       },
       {
         data: "right_context",
-        width: "35%"
+        width: "37%"
       },
       {
         data: "dep",
         width: "5%"
       },
-      {
-        data: "date",
-        width: "5%"
-      }
     ],
     "pageLength": 20,
     "bLengthChange": false
