@@ -161,7 +161,7 @@ myForm.addEventListener('submit', function(e) {
       success: function(response) {
         response=JSON.parse(response);
         // Si la requête n'a pas donné de résultats
-        if (response["result"].toSource()=="[]") {
+        if (response.result.length === 0) {
           alert("Aucun résultat pour cette requête");
           departements.eachLayer(function(layer) {
             layer.setStyle(defaultStyle);
