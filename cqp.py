@@ -239,8 +239,12 @@ def query():
         freqParDepartement[dep.upper()]
 
     # Ici, autant de processus qu'indiqués en argument de Pool vont se partager les tâches (appliquer la fonction f sur chaque département)
-    with Pool(6) as p :
-        query_result = p.starmap(f, corpus_list)
+    try :
+        pool = Pool(6)
+        query_result = pool.starmap(f, corpus_list)
+    finally:
+        pool.close()
+        pool.join()
 
     allResults=[]
     for r in query_result :
