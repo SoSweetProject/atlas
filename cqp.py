@@ -23,8 +23,8 @@ def f(corpus,query):
     """
 
     registry_dir="/usr/local/share/cwb/registry"
-    cqp=PyCQP_interface.CQP(bin='/usr/local/bin/cqp',options='-c -r '+registry_dir)
-
+    #cqp=PyCQP_interface.CQP(bin='/usr/local/bin/cqp',options='-c -r '+registry_dir)
+    cqp=PyCQP_interface.CQP(bin='/usr/local/cwb/bin//cqp',options='-c -r '+registry_dir)
     corpus_name=splitext(basename(corpus))[0].upper()
     dep=corpus_name.split("_")[1].upper()
     if (re.match(r"^\d$",dep)) :
@@ -239,8 +239,12 @@ def query():
         freqParDepartement[dep.upper()]
 
     # Ici, autant de processus qu'indiqués en argument de Pool vont se partager les tâches (appliquer la fonction f sur chaque département)
-    with Pool(6) as p :
-        query_result = p.starmap(f, corpus_list)
+    try :
+        pool = Pool(6)
+        query_result = pool.starmap(f, corpus_list)
+    finally:
+        pool.close()
+        pool.join()
 
     allResults=[]
     for r in query_result :
