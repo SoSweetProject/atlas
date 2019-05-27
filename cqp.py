@@ -12,7 +12,6 @@ import pandas as pd
 import numpy as np
 import random
 import ujson
-import time
 import sys
 import re
 import os
@@ -24,8 +23,8 @@ def f(corpus,query):
     """
 
     registry_dir="/usr/local/share/cwb/registry"
-    cqp=PyCQP_interface.CQP(bin='/usr/local/bin/cqp',options='-c -r '+registry_dir)
-    #cqp=PyCQP_interface.CQP(bin='/usr/local/cwb/bin//cqp',options='-c -r '+registry_dir)
+    #cqp=PyCQP_interface.CQP(bin='/usr/local/bin/cqp',options='-c -r '+registry_dir)
+    cqp=PyCQP_interface.CQP(bin='/usr/local/cwb/bin//cqp',options='-c -r '+registry_dir)
     corpus_name=splitext(basename(corpus))[0].upper()
     dep=corpus_name.split("_")[1].upper()
     if (re.match(r"^\d$",dep)) :
@@ -147,8 +146,6 @@ def getData():
 @app.route('/query', methods=["POST"])
 def query():
 
-    start_time = time.time()
-
     query=request.form["query"]+";"
     query_result=[]
 
@@ -161,9 +158,6 @@ def query():
     finally:
         pool.close()
         pool.join()
-
-    print("Temps récupération des résultats : %s secondes ---" % (time.time() - start_time))
-    start_time_dfAndAllResult = time.time()
 
     allResults=[]
     freqParDepartement = defaultdict(int)
@@ -178,16 +172,10 @@ def query():
             else :
                 freqParDepartement[codeDep]=0
 
-    print("Temps construction df/dep et liste de tous les résultats : %s secondes ---" % (time.time() - start_time_dfAndAllResult))
-    start_time_calculSpec = time.time()
-
     # calcul des spécificités
     freqParDepartementOrdered = OrderedDict(sorted(freqParDepartement.items(), key=lambda t: t[0]))
     df_queryFreq = pd.DataFrame(freqParDepartementOrdered, index=["freq"]).fillna(0)
     specif = specificities(df_queryFreq)
-
-    print("Temps calcul des spécificités : %s secondes ---" % (time.time() - start_time_calculSpec))
-    start_time_recupContextANDmiseEnForme = time.time()
 
     resultsExtract = []
     registry_dir="/usr/local/share/cwb/registry"
@@ -288,14 +276,9 @@ def query():
 
             resultsExtract.append(result)
 
-    print("Temps récupération contextes et mise en forme : %s secondes ---" % (time.time() - start_time_recupContextANDmiseEnForme))
-
     resultAndSpec = {}
     resultAndSpec["result"]=resultsExtract
     resultAndSpec["specif"]=specif
     resultAndSpec=ujson.dumps(resultAndSpec)
 
-    print("Temps global : %s secondes ---" % (time.time() - start_time))
-
-    #print(resultAndSpec)
     return resultAndSpec
