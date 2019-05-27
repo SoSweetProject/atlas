@@ -161,7 +161,8 @@ def query():
         pool.close()
         pool.join()
 
-    print("Temps d execution : %s secondes ---" % (time.time() - start_time))
+    print("Temps récupération des résultats : %s secondes ---" % (time.time() - start_time))
+    start_time_dfAndAllResult = time.time()
 
     allResults=[]
     freqParDepartement = defaultdict(int)
@@ -176,10 +177,16 @@ def query():
             else :
                 freqParDepartement[codeDep]=0
 
+    print("Temps construction df/dep et liste de tous les résultats : %s secondes ---" % (time.time() - start_time_dfAndAllResult))
+    start_time_calculSpec = time.time()
+
     # calcul des spécificités
     freqParDepartementOrdered = OrderedDict(sorted(freqParDepartement.items(), key=lambda t: t[0]))
     df_queryFreq = pd.DataFrame(freqParDepartementOrdered, index=["freq"]).fillna(0)
     specif = specificities(df_queryFreq)
+
+    print("Temps calcul des spécificités : %s secondes ---" % (time.time() - start_time_calculSpec))
+    start_time_recupContextANDmiseEnForme = time.time()
 
     resultsExtract = []
     registry_dir="/usr/local/share/cwb/registry"
@@ -187,7 +194,11 @@ def query():
     for i,dic in enumerate(allResults) :
         if i<10 :
             dep = dic["dep"]
-            corpus_name = "DEP_"+dep
+            if (re.match(r"^0\d$",dep)) :
+                corpus_name = "dep_"+re.match(r"^0(\d)$",dep).group(1).lower()
+            else :
+                corpus_name = "dep_"+dep.lower()
+
             r = dic["result"]
 
             corpus=Corpus(corpus_name,registry_dir=registry_dir);
@@ -274,9 +285,13 @@ def query():
 
             resultsExtract.append(result)
 
+    print("Temps récupération contextes et mise en forme : %s secondes ---" % (time.time() - start_time_recupContextANDmiseEnForme))
+
     resultAndSpec = {}
     resultAndSpec["result"]=resultsExtract
     resultAndSpec["specif"]=specif
     resultAndSpec=ujson.dumps(resultAndSpec)
+
+    print("Temps global : %s secondes ---" % (time.time() - start_time))
 
     return resultAndSpec
