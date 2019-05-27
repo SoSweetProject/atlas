@@ -10,8 +10,9 @@ from CWB.CL import Corpus
 import PyCQP_interface
 import pandas as pd
 import numpy as np
-import time
+import random
 import ujson
+import time
 import sys
 import re
 import os
@@ -190,9 +191,11 @@ def query():
 
     resultsExtract = []
     registry_dir="/usr/local/share/cwb/registry"
-    # Récupération des contextes gauche/droit + mise en forme, pour un extrait des résultats seulement
+    # Récupération des contextes gauche/droit + mise en forme, pour un extrait des résultats seulement (200 tirés au hasard)
+    allResults_shuffle=[]
+    random.shuffle(allResults)
     for i,dic in enumerate(allResults) :
-        if i<10 :
+        if i<200 :
             dep = dic["dep"]
             if (re.match(r"^0\d$",dep)) :
                 corpus_name = "dep_"+re.match(r"^0(\d)$",dep).group(1).lower()
@@ -294,4 +297,5 @@ def query():
 
     print("Temps global : %s secondes ---" % (time.time() - start_time))
 
+    #print(resultAndSpec)
     return resultAndSpec
