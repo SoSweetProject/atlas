@@ -12,6 +12,7 @@ import pandas as pd
 import numpy as np
 import random
 import ujson
+import datetime
 import sys
 import re
 import os
@@ -38,20 +39,19 @@ def f(corpus,query):
     cqp.Exec(corpus_name+";")
     cqp.Query(query)
 
-    cqp.Exec("sort Last by word;")
+    #cqp.Exec("sort Last by word;")
 
     """
         Récupération des résultats, sous la forme d'une liste (results) qui contient autant de listes que de résultats correspondant à la requête effectuée, ou une liste vide si aucun résultat.
         Ces listes permettent de récupérer l'emplacement du premier et du dernier élément des motifs correspondants dans le corpus.
     """
     rsize=int(cqp.Exec("size Last;"))
-    results=cqp.Dump(first=0,last=rsize)
-
+    results=cqp.Dump(first=0,last=20)
     cqp.Terminate()
     # fermeture du processus CQP car sinon ne se ferme pas
     os.popen("kill -9 " + str(cqp.CQP_process.pid))
 
-    resultDep[dep]=results
+    resultDep[dep] = {"results":results, "nbTotalResults":rsize}
 
     return resultDep
 
@@ -152,6 +152,9 @@ def query():
     corpus_list = [("dep_1",query), ("dep_10",query), ("dep_11",query), ("dep_12",query), ("dep_13",query), ("dep_14",query), ("dep_15",query), ("dep_16",query), ("dep_17",query), ("dep_18",query), ("dep_19",query), ("dep_2",query), ("dep_21",query), ("dep_22",query), ("dep_23",query), ("dep_24",query), ("dep_25",query), ("dep_26",query), ("dep_27",query), ("dep_28",query), ("dep_29",query), ("dep_2a",query), ("dep_2b",query), ("dep_3",query), ("dep_30",query), ("dep_31",query), ("dep_32",query), ("dep_33",query), ("dep_34",query), ("dep_35",query), ("dep_36",query), ("dep_37",query), ("dep_38",query), ("dep_39",query), ("dep_4",query), ("dep_40",query), ("dep_41",query), ("dep_42",query), ("dep_43",query), ("dep_44",query), ("dep_45",query), ("dep_46",query), ("dep_47",query), ("dep_48",query), ("dep_49",query), ("dep_5",query), ("dep_50",query), ("dep_51",query), ("dep_52",query), ("dep_53",query), ("dep_54",query), ("dep_55",query), ("dep_56",query), ("dep_57",query), ("dep_58",query), ("dep_59",query), ("dep_6",query), ("dep_60",query), ("dep_61",query), ("dep_62",query), ("dep_63",query), ("dep_64",query), ("dep_65",query), ("dep_66",query), ("dep_67",query), ("dep_68",query), ("dep_69",query), ("dep_7",query), ("dep_70",query), ("dep_71",query), ("dep_72",query), ("dep_73",query), ("dep_74",query), ("dep_75",query), ("dep_76",query), ("dep_77",query), ("dep_78",query), ("dep_79",query), ("dep_8",query), ("dep_80",query), ("dep_81",query), ("dep_82",query), ("dep_83",query), ("dep_84",query), ("dep_85",query), ("dep_86",query), ("dep_87",query), ("dep_88",query), ("dep_89",query), ("dep_9",query), ("dep_90",query), ("dep_91",query), ("dep_92",query), ("dep_93",query), ("dep_94",query), ("dep_95",query)]
 
     # Ici, autant de processus qu'indiqués en argument de Pool vont se partager les tâches (récupérer pour chaque département le résultat de la requête cqp)
+
+    #start_time = datetime.datetime.now()
+    
     try :
         pool = Pool(4)
         query_result = pool.starmap(f, corpus_list)
@@ -165,12 +168,10 @@ def query():
     # récupération de l'ensemble des résultats dans une seule et même liste
     for depResult in query_result :
         for codeDep in depResult :
-            if depResult[codeDep]!=[['']] :
-                freqParDepartement[codeDep]=len(depResult[codeDep])
-                for result in depResult[codeDep] :
+            freqParDepartement[codeDep]=depResult[codeDep]["nbTotalResults"]
+            if depResult[codeDep]["results"]!=[['']] :
+                for result in depResult[codeDep]["results"] :
                     allResults.append({"dep":codeDep, "result":result})
-            else :
-                freqParDepartement[codeDep]=0
 
     # calcul des spécificités
     freqParDepartementOrdered = OrderedDict(sorted(freqParDepartement.items(), key=lambda t: t[0]))
@@ -275,6 +276,8 @@ def query():
             result["right_context"]="<span title=\""+rc_pos+"&#10;"+rc_lemmas+"\">"+rc_tokens+"</span>"
 
             resultsExtract.append(result)
+
+    #print(datetime.datetime.now()-start_time)
 
     resultAndSpec = {}
     resultAndSpec["result"]=resultsExtract
