@@ -24,8 +24,8 @@ def f(corpus,query):
     """
 
     registry_dir="/usr/local/share/cwb/registry"
-    cqp=PyCQP_interface.CQP(bin='/usr/local/bin/cqp',options='-c -r '+registry_dir)
-    #cqp=PyCQP_interface.CQP(bin='/usr/local/cwb/bin//cqp',options='-c -r '+registry_dir)
+    #cqp=PyCQP_interface.CQP(bin='/usr/local/bin/cqp',options='-c -r '+registry_dir)
+    cqp=PyCQP_interface.CQP(bin='/usr/local/cwb/bin//cqp',options='-c -r '+registry_dir)
     corpus_name=splitext(basename(corpus))[0].upper()
     dep=corpus_name.split("_")[1].upper()
     if (re.match(r"^\d$",dep)) :
@@ -65,7 +65,7 @@ def specificities(freqMotifParDep) :
             - sortie : dictionnaire contenant pour chaque département la spécificité du motif
     """
 
-    freqTot = 32802334
+    freqTot = 31868064
     freqTotParDep = pd.read_hdf('./static/freqByDep.hdf', 'freqTokensByDep')
     freqTotMotif = freqMotifParDep.sum().sum()
     df_freqTotMotif = pd.DataFrame(freqMotifParDep.sum(axis=1), columns=["0"])
