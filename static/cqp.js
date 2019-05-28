@@ -126,6 +126,10 @@ function responseDisplay(response) {
 
   datas=[];
 
+  // affichade du nombre d'occurences trouvées
+  document.getElementById("nbOccurences").innerHTML = ""
+  document.getElementById("nbOccurences").append(new Intl.NumberFormat().format(response["nbResults"])+" occurences dans le corpus");
+
   // Coloration de la carte en fonction des spécificités du motif recherché par département
   departements.eachLayer(function(layer) {
     style = {
@@ -165,6 +169,7 @@ myForm.addEventListener('submit', function(e) {
             layer.setStyle(defaultStyle);
           })
           $('#table').dataTable().fnClearTable();
+          document.getElementById("nbOccurences").innerHTML = ""
         } else {
           response=JSON.parse(response);
           // Si la requête n'a pas donné de résultats
@@ -174,6 +179,7 @@ myForm.addEventListener('submit', function(e) {
               layer.setStyle(defaultStyle);
             })
             $('#table').dataTable().fnClearTable();
+            document.getElementById("nbOccurences").innerHTML = ""
           } else {
             data = responseDisplay(response);
           }

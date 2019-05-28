@@ -21,7 +21,11 @@ h3 {
 }
 
 #form {
-  margin: auto;
+  margin:auto;
+  text-align: center;
+}
+
+#infos {
   text-align: center;
 }
 
@@ -97,6 +101,11 @@ label {
 }
 #button:active{
   box-shadow: 1px 1px 10px #597493 inset, 0 1px 0 rgba( 255, 255, 255, 0.4);
+}
+
+.nbOccurences {
+  text-align: center;
+  color: #597493;
 }
 
 #table {

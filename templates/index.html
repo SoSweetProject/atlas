@@ -21,14 +21,19 @@
         </div>
       </div>
       <div class="row" id="firstRow">
-        <form id="form">
-          <label> Requête &#x2192; </label>
-          <input type="text" id="query" name="query"/>
-          <div id="submit">
-            <input id="button" type="submit" value="Soumettre"/>
-            <div id="loader"></div>
-          </div>
-        </form>
+        <div class="col-md-12">
+          <form id="form">
+            <label> Requête &#x2192; </label>
+            <input type="text" id="query" name="query"/>
+            <div id="submit">
+              <input id="button" type="submit" value="Soumettre"/>
+              <div id="loader"></div>
+            </div>
+          </form>
+        </div>
+        <div class="col-md-12" id="infos">
+          <p id="nbOccurences"></p>
+        </div>
       </div>
       <div class="row">
         <div class="col-md-5">
