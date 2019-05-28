@@ -159,16 +159,24 @@ myForm.addEventListener('submit', function(e) {
         query: $("#query").val()
       },
       success: function(response) {
-        response=JSON.parse(response);
-        // Si la requête n'a pas donné de résultats
-        if (response.result.length === 0) {
-          alert("Aucun résultat pour cette requête");
+        if (response=="Erreur de syntaxe") {
+          alert("Erreur de syntaxe dans la requête");
           departements.eachLayer(function(layer) {
             layer.setStyle(defaultStyle);
           })
           $('#table').dataTable().fnClearTable();
         } else {
-          data = responseDisplay(response);
+          response=JSON.parse(response);
+          // Si la requête n'a pas donné de résultats
+          if (response.result.length === 0) {
+            alert("Aucun résultat pour cette requête");
+            departements.eachLayer(function(layer) {
+              layer.setStyle(defaultStyle);
+            })
+            $('#table').dataTable().fnClearTable();
+          } else {
+            data = responseDisplay(response);
+          }
         }
         document.getElementById('loader').style.visibility='hidden';
         document.getElementById('button').style.visibility='visible';

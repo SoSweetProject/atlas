@@ -24,8 +24,8 @@ def f(corpus,query):
     """
 
     registry_dir="/usr/local/share/cwb/registry"
-    #cqp=PyCQP_interface.CQP(bin='/usr/local/bin/cqp',options='-c -r '+registry_dir)
-    cqp=PyCQP_interface.CQP(bin='/usr/local/cwb/bin//cqp',options='-c -r '+registry_dir)
+    cqp=PyCQP_interface.CQP(bin='/usr/local/bin/cqp',options='-c -r '+registry_dir)
+    #cqp=PyCQP_interface.CQP(bin='/usr/local/cwb/bin//cqp',options='-c -r '+registry_dir)
     corpus_name=splitext(basename(corpus))[0].upper()
     dep=corpus_name.split("_")[1].upper()
     if (re.match(r"^\d$",dep)) :
@@ -35,25 +35,28 @@ def f(corpus,query):
 
     resultDep = {}
 
-    # Envoi de la requête
-    cqp.Exec(corpus_name+";")
-    cqp.Query(query)
-
-    #cqp.Exec("sort Last by word;")
-
     """
+        Envoi de la requête
         Récupération des résultats, sous la forme d'une liste (results) qui contient autant de listes que de résultats correspondant à la requête effectuée, ou une liste vide si aucun résultat.
         Ces listes permettent de récupérer l'emplacement du premier et du dernier élément des motifs correspondants dans le corpus.
     """
-    rsize=int(cqp.Exec("size Last;"))
-    results=cqp.Dump(first=0,last=20)
-    cqp.Terminate()
-    # fermeture du processus CQP car sinon ne se ferme pas
-    os.popen("kill -9 " + str(cqp.CQP_process.pid))
+    cqp.Exec(corpus_name+";")
 
-    resultDep[dep] = {"results":results, "nbTotalResults":rsize}
+    try :
+        cqp.Query(query)
+        rsize=int(cqp.Exec("size Last;"))
+        results=cqp.Dump(first=0,last=20)
+        #cqp.Exec("sort Last by word;")
+        cqp.Terminate()
+        # fermeture du processus CQP car sinon ne se ferme pas
+        os.popen("kill -9 " + str(cqp.CQP_process.pid))
 
-    return resultDep
+        resultDep[dep] = {"results":results, "nbTotalResults":rsize}
+
+        return resultDep
+
+    except Exception as e :
+        return False
 
 def specificities(freqMotifParDep) :
     """
@@ -154,7 +157,7 @@ def query():
     # Ici, autant de processus qu'indiqués en argument de Pool vont se partager les tâches (récupérer pour chaque département le résultat de la requête cqp)
 
     #start_time = datetime.datetime.now()
-    
+
     try :
         pool = Pool(4)
         query_result = pool.starmap(f, corpus_list)
@@ -162,126 +165,132 @@ def query():
         pool.close()
         pool.join()
 
-    allResults=[]
-    freqParDepartement = defaultdict(int)
-    # Construction d'un dataframe contenant la fréquence du motif recherché dans chaque département
-    # récupération de l'ensemble des résultats dans une seule et même liste
-    for depResult in query_result :
-        for codeDep in depResult :
-            freqParDepartement[codeDep]=depResult[codeDep]["nbTotalResults"]
-            if depResult[codeDep]["results"]!=[['']] :
-                for result in depResult[codeDep]["results"] :
-                    allResults.append({"dep":codeDep, "result":result})
+    if query_result[0]==False :
+        return "Erreur de syntaxe"
 
-    # calcul des spécificités
-    freqParDepartementOrdered = OrderedDict(sorted(freqParDepartement.items(), key=lambda t: t[0]))
-    df_queryFreq = pd.DataFrame(freqParDepartementOrdered, index=["freq"]).fillna(0)
-    specif = specificities(df_queryFreq)
+    else :
+        allResults=[]
 
-    resultsExtract = []
-    registry_dir="/usr/local/share/cwb/registry"
-    # Récupération des contextes gauche/droit + mise en forme, pour un extrait des résultats seulement (200 tirés au hasard)
-    allResults_shuffle=[]
-    random.shuffle(allResults)
-    for i,dic in enumerate(allResults) :
-        if i<200 :
-            dep = dic["dep"]
-            if (re.match(r"^0\d$",dep)) :
-                corpus_name = "dep_"+re.match(r"^0(\d)$",dep).group(1).lower()
-            else :
-                corpus_name = "dep_"+dep.lower()
+        freqParDepartement = defaultdict(int)
+        # Construction d'un dataframe contenant la fréquence du motif recherché dans chaque département
+        # récupération de l'ensemble des résultats dans une seule et même liste
+        for depResult in query_result :
+            for codeDep in depResult :
+                freqParDepartement[codeDep]=depResult[codeDep]["nbTotalResults"]
+                if depResult[codeDep]["results"]!=[['']] :
+                    for result in depResult[codeDep]["results"] :
+                        allResults.append({"dep":codeDep, "result":result})
 
-            r = dic["result"]
+        # calcul des spécificités
+        freqParDepartementOrdered = OrderedDict(sorted(freqParDepartement.items(), key=lambda t: t[0]))
+        df_queryFreq = pd.DataFrame(freqParDepartementOrdered, index=["freq"]).fillna(0)
+        specif = specificities(df_queryFreq)
 
-            corpus=Corpus(corpus_name,registry_dir=registry_dir);
+        resultsExtract = []
+        registry_dir="/usr/local/share/cwb/registry"
+        # Récupération des contextes gauche/droit + mise en forme, pour un extrait des résultats seulement (200 tirés au hasard)
+        allResults_shuffle=[]
+        random.shuffle(allResults)
+        for i,dic in enumerate(allResults) :
+            if i<200 :
+                dep = dic["dep"]
+                if (re.match(r"^0\d$",dep)) :
+                    corpus_name = "dep_"+re.match(r"^0(\d)$",dep).group(1).lower()
+                else :
+                    corpus_name = "dep_"+dep.lower()
 
-            # permettra de récupérer par la suite le token, la POS ou le lemme correspondant à la position indiquée
-            words=corpus.attribute("word","p")
-            postags=corpus.attribute("pos","p")
-            lemmas=corpus.attribute("lemma","p")
+                r = dic["result"]
 
-            sentences=corpus.attribute(b"text","s")
-            id=corpus.attribute(b"text_id","s")
-            dates=corpus.attribute(b"text_date","s")
-            geo=corpus.attribute(b"text_geo","s")
-            users=corpus.attribute(b"text_user","s")
+                corpus=Corpus(corpus_name,registry_dir=registry_dir);
 
-            left_context=[]
-            right_context=[]
-            start=int(r[0])
-            end=int(r[1])
+                # permettra de récupérer par la suite le token, la POS ou le lemme correspondant à la position indiquée
+                words=corpus.attribute("word","p")
+                postags=corpus.attribute("pos","p")
+                lemmas=corpus.attribute("lemma","p")
 
-            # Récupération de la position du début et de la fin du tweet dans lequel le motif a été trouvé
-            s_bounds=sentences.find_pos(end)
-            # Récupérarion de ses attributs (id, date, coordonnées et id de l'utilisateur)
-            id_bounds=id.find_pos(end)
-            date_bounds=dates.find_pos(end)
-            geo_bounds=geo.find_pos(end)
-            user_bounds=users.find_pos(end)
+                sentences=corpus.attribute(b"text","s")
+                id=corpus.attribute(b"text_id","s")
+                dates=corpus.attribute(b"text_date","s")
+                geo=corpus.attribute(b"text_geo","s")
+                users=corpus.attribute(b"text_user","s")
 
-            coord = geo_bounds[-1].decode("utf8").split(", ")
+                left_context=[]
+                right_context=[]
+                start=int(r[0])
+                end=int(r[1])
 
-            # récupération de la position des mots des contextes droit et gauche
-            for pos in range(s_bounds[0],s_bounds[1]+1) :
-                if (pos<start) :
-                    left_context.append(pos)
-                if (pos>end) :
-                    right_context.append(pos)
+                # Récupération de la position du début et de la fin du tweet dans lequel le motif a été trouvé
+                s_bounds=sentences.find_pos(end)
+                # Récupérarion de ses attributs (id, date, coordonnées et id de l'utilisateur)
+                id_bounds=id.find_pos(end)
+                date_bounds=dates.find_pos(end)
+                geo_bounds=geo.find_pos(end)
+                user_bounds=users.find_pos(end)
 
-            # Construction du dictionnaire qui contiendra les informations qui nous intéressent
-            result={"id" : id_bounds[-1],
-                    "date" : date_bounds[-1].decode("utf8").split("T")[0],
-                    "geo" : coord,
-                    "dep" : dep,
-                    "user" : user_bounds[-1],
-                    "hide_column" : "",
-                    "left_context" : "",
-                    "pattern" : "",
-                    "right_context" : ""}
+                coord = geo_bounds[-1].decode("utf8").split(", ")
 
-            lc_tokens = []
-            lc_pos = []
-            lc_lemmas = []
-            rc_tokens = []
-            rc_pos = []
-            rc_lemmas = []
+                # récupération de la position des mots des contextes droit et gauche
+                for pos in range(s_bounds[0],s_bounds[1]+1) :
+                    if (pos<start) :
+                        left_context.append(pos)
+                    if (pos>end) :
+                        right_context.append(pos)
 
-            # récupération du contexte gauche (tokens, pos et lemmes)
-            for lp in left_context :
-                lc_tokens.append(words[lp])
-                lc_pos.append(postags[lp])
-                lc_lemmas.append(lemmas[lp])
-            lc_tokens=reconstituteString(lc_tokens)
-            lc_pos=" ".join(lc_pos)
-            lc_lemmas=" ".join(lc_lemmas)
+                # Construction du dictionnaire qui contiendra les informations qui nous intéressent
+                result={"id" : id_bounds[-1],
+                        "date" : date_bounds[-1].decode("utf8").split("T")[0],
+                        "geo" : coord,
+                        "dep" : dep,
+                        "user" : user_bounds[-1],
+                        "hide_column" : "",
+                        "left_context" : "",
+                        "pattern" : "",
+                        "right_context" : ""}
 
-            # récupération du motif recherché (tokens, pos et lemmes)
-            pattern_tokens=reconstituteString(words[start:end+1])
-            pattern_pos=" ".join(postags[start:end+1])
-            pattern_lemmas=" ".join(lemmas[start:end+1])
+                lc_tokens = []
+                lc_pos = []
+                lc_lemmas = []
+                rc_tokens = []
+                rc_pos = []
+                rc_lemmas = []
 
-            # récupération du contexte droit (tokens, pos et lemmes)
-            for rp in right_context :
-                rc_tokens.append(words[rp])
-                rc_pos.append(postags[rp])
-                rc_lemmas.append(lemmas[rp])
-            rc_tokens=reconstituteString(rc_tokens)
-            rc_pos=" ".join(rc_pos)
-            rc_lemmas=" ".join(rc_lemmas)
+                # récupération du contexte gauche (tokens, pos et lemmes)
+                for lp in left_context :
+                    lc_tokens.append(words[lp])
+                    lc_pos.append(postags[lp])
+                    lc_lemmas.append(lemmas[lp])
+                lc_tokens=reconstituteString(lc_tokens)
+                lc_pos=" ".join(lc_pos)
+                lc_lemmas=" ".join(lc_lemmas)
 
-            # mise en forme ici pour ne pas ajouter du temps de traitement côté client
-            result["hide_column"]=lc_tokens[::-1]
-            result["left_context"]="<span title=\""+lc_pos+"&#10;"+lc_lemmas+"\">"+lc_tokens+"</span>"
-            result["pattern"]="<span title=\""+pattern_pos+"&#10;"+pattern_lemmas+"\">"+pattern_tokens+"</span>"
-            result["right_context"]="<span title=\""+rc_pos+"&#10;"+rc_lemmas+"\">"+rc_tokens+"</span>"
+                # récupération du motif recherché (tokens, pos et lemmes)
+                pattern_tokens=reconstituteString(words[start:end+1])
+                pattern_pos=" ".join(postags[start:end+1])
+                pattern_lemmas=" ".join(lemmas[start:end+1])
 
-            resultsExtract.append(result)
+                # récupération du contexte droit (tokens, pos et lemmes)
+                for rp in right_context :
+                    rc_tokens.append(words[rp])
+                    rc_pos.append(postags[rp])
+                    rc_lemmas.append(lemmas[rp])
+                rc_tokens=reconstituteString(rc_tokens)
+                rc_pos=" ".join(rc_pos)
+                rc_lemmas=" ".join(rc_lemmas)
 
-    #print(datetime.datetime.now()-start_time)
+                # mise en forme ici pour ne pas ajouter du temps de traitement côté client
+                result["hide_column"]=lc_tokens[::-1]
+                result["left_context"]="<span title=\""+lc_pos+"&#10;"+lc_lemmas+"\">"+lc_tokens+"</span>"
+                result["pattern"]="<span title=\""+pattern_pos+"&#10;"+pattern_lemmas+"\">"+pattern_tokens+"</span>"
+                result["right_context"]="<span title=\""+rc_pos+"&#10;"+rc_lemmas+"\">"+rc_tokens+"</span>"
 
-    resultAndSpec = {}
-    resultAndSpec["result"]=resultsExtract
-    resultAndSpec["specif"]=specif
-    resultAndSpec=ujson.dumps(resultAndSpec)
+                resultsExtract.append(result)
 
-    return resultAndSpec
+        #print(datetime.datetime.now()-start_time)
+
+        resultAndSpec = {}
+        resultAndSpec["result"]=resultsExtract
+        resultAndSpec["specif"]=specif
+        resultAndSpec["nbResults"]=int(df_queryFreq.sum().sum())
+        resultAndSpec=ujson.dumps(resultAndSpec)
+
+        return resultAndSpec
