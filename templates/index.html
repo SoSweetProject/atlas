@@ -15,13 +15,15 @@
 
   <body>
     <div class="container-fluid">
+
       <div class="row">
         <div class="col-md-12">
           <h3> SoSweet - Atlas</h3>
         </div>
       </div>
+
       <div class="row" id="firstRow">
-        <div class="col-md-12">
+        <div class="col-md-6 offset-md-3">
           <form id="form">
             <label> Requête &#x2192; </label>
             <input type="text" id="query" name="query"/>
@@ -31,10 +33,186 @@
             </div>
           </form>
         </div>
-        <div class="col-md-12" id="infos">
+
+        <div class="col-md-6 offset-md-3">
           <p id="nbOccurences"></p>
         </div>
+
+        <div class="col-md-12">
+          <span title="Aide"> <img src="static/info.png" name="image" onmouseover="image.src='static/infoHover.png'" onmouseout="image.src='static/info.png'" id="img"/> </span>
+        </div>
+
+        <div class="col-md-6 offset-md-3" id="aide">
+          <p>
+            Les requêtes doivent être formulées en langage CQL <i>(Corpus Query Language)</i>. <br/>
+            Il est possible d'effectuer des requêtes simples ou plus complexes. Trois unités peuvent être distinguées lorsque l'on recherche un élément : la forme (word), le lemme (lemma), et la catégorie grammaticale (pos). <br/><br/>
+            <b>Exemples de requêtes simples :</b> <i>"rugby"%c</i> (recherche de toutes les occurences de "rugby", sans prendre en compte la casse des caractères), <i>"[^.,?!:;]*" "à" "la" "plage"</i> (recherche du motif "à la plage", précédé de n'importe quelle forme, excepté un signe de ponctuation).<br/><br/>
+            <b>Exemples de requêtes complexes :</b> <i>[lemma="plage"]</i> (recherche de toutes les formes du lemme "plage"), <i>[word="t'|j'|j’|t’"%c] [pos="V"&word="[^aehioué].*"%c]</i> (recherche des cas d'élision devant un verbe débutant par une consonne)
+           </p>
+           <p id="viewMemo"> <u>Afficher le mémo</u> </p>
+           <p id="viewPos"> <u>Afficher la liste des parties du discours</u> </p>
+        </div>
+
+        <div class="col-md-3" id="memo">
+          <table>
+            <tr>
+              <th scope="row">[]</th>
+              <td>délimite un élément</td>
+              <td>[word="chat"]</td>
+            </tr>
+              <tr>
+              <th scope="row">&</th>
+              <td>et</td>
+              <td>[pos="DET"&lemma="le"]</td>
+            </tr>
+            <tr>
+              <th scope="row">|</th>
+              <td>ou</td>
+              <td>[pos="ADV|V"]</td>
+            </tr>
+            <tr>
+              <th scope="row">.</th>
+              <td>n'importe quel caractère</td>
+              <td>[word="<for.e>"]</td>
+            </tr>
+            <tr>
+              <th scope="row">?</th>
+              <td>une ou aucune fois</td>
+              <td>[word="partie?s?"]</td>
+            </tr>
+            <tr>
+              <th scope="row">+</th>
+              <td>une ou plusieurs fois</td>
+              <td>[lemma="!+"] [word="j.+"]</td>
+            </tr>
+            <tr>
+              <th scope="row">*</th>
+              <td>0, une, ou plusieurs fois</td>
+              <td>[word=".*antes"]</td>
+            </tr>
+            <tr>
+              <th scope="row">[^]</th>
+              <td>exclure un ou plusieurs caractères</td>
+              <td>[word="j[^']"]</td>
+            </tr>
+            <tr>
+              <th scope="row">()</th>
+              <td>capturer un groupe</td>
+              <td>[word="mang(é|ée|és)"] </td>
+            </tr>
+            <tr>
+              <th scope="row">^$</th>
+              <td>début et fin</td>
+              <td>[lemma="^a.*z$"]</td>
+            </tr>
+            <tr>
+              <th scope="row">%c</th>
+              <td>ne prend pas en compte la casse</td>
+              <td>[word="soleil"%c]</td>
+            </tr>
+            <tr>
+              <th scope="row">.?*+|()[]{}^$</th>
+              <td>caractères à échapper</td>
+              <td>[word="\?"]</td>
+            </tr>
+          </table>
+        </div>
+
+        <div class="col-md-3" id="pos">
+          <table>
+            <tr>
+              <th scope="row">NC</th>
+              <td>nom commun</td>
+              <th scope="row">NPP</th>
+              <td>nom propre</td>
+            </tr>
+            <tr>
+              <th scope="row">DET</th>
+              <td>déterminant</td>
+              <th scope="row">P</th>
+              <td>préposition</td>
+            </tr>
+            <tr>
+              <th scope="row">P+DET</th>
+              <td>préposition+déterminant</td>
+              <th scope="row">P+PRO</th>
+              <td>préposition+pronom</td>
+            </tr>
+            <tr>
+              <th scope="row">ADJ</th>
+              <td>adjectif</td>
+              <th scope="row">ADV</th>
+              <td>adverbe</td>
+            </tr>
+            <tr>
+              <th scope="row">V</th>
+              <td>verbe</td>
+              <th scope="row">VINF</th>
+              <td>verbe infinitif</td>
+            </tr>
+            <tr>
+              <th scope="row">VIMP</th>
+              <td>verbe impératif</td>
+              <th scope="row">VPP</th>
+              <td>verbe participe passé</td>
+            </tr>
+            <tr>
+              <th scope="row">VPR</th>
+              <td>verbe participe présent</td>
+              <th scope="row">VS</th>
+              <td>verbe subjonctif</td>
+            </tr>
+            <tr>
+              <th scope="row">CC</th>
+              <td>conjonction coordination</td>
+              <th scope="row">CS</th>
+              <td>conjonction subordination</td>
+            </tr>
+            <tr>
+              <th scope="row">PRO</th>
+              <td>pronom</td>
+              <th scope="row">CLS</th>
+              <td>pronom clitique sujet</td>
+            </tr>
+            <tr>
+              <th scope="row">CLO</th>
+              <td>pronom clitique objet</td>
+              <th scope="row">CLR</th>
+              <td>pronom clitique réfléchi</td>
+            </tr>
+            <tr>
+              <th scope="row">PROREL</th>
+              <td>pronom relatif</td>
+              <th scope="row">ADVWH</th>
+              <td>adverbe interrogatif</td>
+            </tr>
+            <tr>
+              <th scope="row">PROWH</th>
+              <td>pronom interrogatif</td>
+              <th scope="row">ADJWH</th>
+              <td>adjectif interrogatif</td>
+            </tr>
+            <tr>
+              <th scope="row">DETWH</th>
+              <td>déterminant interrogatif</td>
+              <th scope="row">ET</th>
+              <td>langue étrangère</td>
+            </tr>
+            <tr>
+              <th scope="row">PREF</th>
+              <td>préfixe</td>
+              <th scope="row">I</th>
+              <td>interjection</td>
+            </tr>
+            <tr>
+              <th scope="row">PONCT</th>
+              <td>ponctuation</td>
+            </tr>
+          </table>
+        </div>
+
       </div>
+
       <div class="row">
         <div class="col-md-5">
           <div class="left" id="map"></div>
@@ -54,6 +232,7 @@
           </table>
         </div>
       </div>
+
     </div>
 
     <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>

@@ -151,6 +151,29 @@ function responseDisplay(response) {
 $(document).ready(initTable())
 document.getElementById('loader').style.visibility='hidden';
 
+// afficher l'aide
+$(document).ready(function(){
+    $('#img').click(function(){
+      $('#aide').slideToggle();
+      $('#memo').slideUp();
+      $('#pos').slideUp();
+  });
+});
+// afficher la liste des pos
+$(document).ready(function(){
+    $('#viewPos').click(function(){
+      document.getElementById('memo').style.display=null;
+      document.getElementById('pos').style.display="inline";
+  });
+});
+//afficher le memo
+$(document).ready(function(){
+    $('#viewMemo').click(function(){
+      document.getElementById('memo').style.display="inline";
+      document.getElementById('pos').style.display=null;
+  });
+});
+
 // Envoi de la requête (cf. cqp.py)
 myForm.addEventListener('submit', function(e) {
   $('form :submit').attr("disabled", true);
