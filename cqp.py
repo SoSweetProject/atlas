@@ -97,6 +97,7 @@ def specificities(freqMotifParDep) :
 
     specif.rename(index={"freq":"specif"},inplace=True)
     specif = pd.DataFrame.to_dict(specif)
+
     return specif
 
 # reconstitue les chaînes de caractères à partir d'une liste de tokens
@@ -291,6 +292,7 @@ def query():
         resultAndSpec["result"]=resultsExtract
         resultAndSpec["specif"]=specif
         resultAndSpec["nbResults"]=int(df_queryFreq.sum().sum())
+        resultAndSpec["nbOccurrences"]=freqParDepartement
         resultAndSpec=ujson.dumps(resultAndSpec)
 
         return resultAndSpec

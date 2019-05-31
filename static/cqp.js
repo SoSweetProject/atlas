@@ -48,19 +48,16 @@ function getDefaultStyle(e) {
 // Indication de ce qu'il se passe au survol de la souris sur les départements
 function onEachFeature(feature, layer) {
   layer.on({
-    mouseover: showdepartementPopup,
+    mouseover: function(e) {
+      var popup = L.popup()
+        .setLatLng(e.latlng)
+        .setContent(e.target.feature.properties.code + ' - ' + e.target.feature.properties.nom)
+        .openOn(map);
+    },
     mouseout: function(e) {
       map.closePopup()
     }
   });
-}
-
-// Popups
-function showdepartementPopup(e) {
-  var popup = L.popup()
-    .setLatLng(e.latlng)
-    .setContent(e.target.feature.properties.code + ' - ' + e.target.feature.properties.nom)
-    .openOn(map);
 }
 
 // Retourne la couleur associée à la spécificité indiquée
@@ -126,9 +123,9 @@ function responseDisplay(response) {
 
   datas=[];
 
-  // affichade du nombre d'occurences trouvées
-  document.getElementById("nbOccurences").innerHTML = ""
-  document.getElementById("nbOccurences").append(new Intl.NumberFormat().format(response["nbResults"])+" occurences dans le corpus");
+  // affichade du nombre d'occurrences trouvées
+  document.getElementById("nbOccurrences").innerHTML = ""
+  document.getElementById("nbOccurrences").append(new Intl.NumberFormat().format(response["nbResults"])+" occurrences dans le corpus");
 
   // Coloration de la carte en fonction des spécificités du motif recherché par département
   departements.eachLayer(function(layer) {
@@ -141,6 +138,18 @@ function responseDisplay(response) {
       fillOpacity: 0.7
     };
     layer.setStyle(style);
+    nbOccurrences=response["nbResults"]
+    layer.on({
+      mouseover: function(e) {
+        var popup = L.popup()
+          .setLatLng(e.latlng)
+          .setContent("<dt>"+e.target.feature.properties.code +' - '+ e.target.feature.properties.nom +'</dt><dl>'+ response["nbOccurrences"][e.target.feature.properties.code] +' occurrences</dl>')
+          .openOn(map);
+      },
+      mouseout: function(e) {
+        map.closePopup()
+      }
+    });
   })
 
   // Ajout des résultats obtenus dans la dataTable
@@ -190,9 +199,20 @@ myForm.addEventListener('submit', function(e) {
           alert("Erreur de syntaxe dans la requête");
           departements.eachLayer(function(layer) {
             layer.setStyle(defaultStyle);
+            layer.on({
+              mouseover: function(e) {
+                var popup = L.popup()
+                  .setLatLng(e.latlng)
+                  .setContent(e.target.feature.properties.code + ' - ' + e.target.feature.properties.nom)
+                  .openOn(map);
+              },
+              mouseout: function(e) {
+                map.closePopup()
+              }
+            });
           })
           $('#table').dataTable().fnClearTable();
-          document.getElementById("nbOccurences").innerHTML = ""
+          document.getElementById("nbOccurrences").innerHTML = ""
         } else {
           response=JSON.parse(response);
           // Si la requête n'a pas donné de résultats
@@ -200,9 +220,20 @@ myForm.addEventListener('submit', function(e) {
             alert("Aucun résultat pour cette requête");
             departements.eachLayer(function(layer) {
               layer.setStyle(defaultStyle);
+              layer.on({
+                mouseover: function(e) {
+                  var popup = L.popup()
+                    .setLatLng(e.latlng)
+                    .setContent(e.target.feature.properties.code + ' - ' + e.target.feature.properties.nom)
+                    .openOn(map);
+                },
+                mouseout: function(e) {
+                  map.closePopup()
+                }
+              });
             })
             $('#table').dataTable().fnClearTable();
-            document.getElementById("nbOccurences").innerHTML = ""
+            document.getElementById("nbOccurrences").innerHTML = ""
           } else {
             data = responseDisplay(response);
           }
