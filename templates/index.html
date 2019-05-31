@@ -44,13 +44,25 @@
 
         <div class="col-md-6 offset-md-3" id="aide">
           <p>
-            Les requêtes doivent être formulées en langage CQL <i>(Corpus Query Language)</i>. <br/>
-            Il est possible d'effectuer des requêtes simples ou plus complexes. Trois unités peuvent être distinguées lorsque l'on recherche un élément : la forme (word), le lemme (lemma), et la catégorie grammaticale (pos). <br/><br/>
-            <b>Exemples de requêtes simples :</b> <i>"rugby"%c</i> (recherche de toutes les occurences de "rugby", sans prendre en compte la casse des caractères), <i>"[^.,?!:;]*" "à" "la" "plage"</i> (recherche du motif "à la plage", précédé de n'importe quelle forme, excepté un signe de ponctuation).<br/><br/>
-            <b>Exemples de requêtes complexes :</b> <i>[lemma="plage"]</i> (recherche de toutes les formes du lemme "plage"), <i>[word="t'|j'|j’|t’"%c] [pos="V"&word="[^aehioué].*"%c]</i> (recherche des cas d'élision devant un verbe débutant par une consonne)
-           </p>
-           <p id="viewMemo"> <u>Afficher le mémo</u> </p>
-           <p id="viewPos"> <u>Afficher la liste des parties du discours</u> </p>
+            <br/>
+            Les requêtes doivent être formulées en langage CQL <i>(Corpus Query Language)</i>.
+            <br/>
+            Le corpus, annoté syntaxiquement, contient 2 554 567 tweets géolocalisés, soit 31 868 064 tokens.
+            <br/>
+            Pour chaque token, la recherche peut porter sur sa forme (word), son lemme (lemma), ou sa catégorie grammaticale (pos).
+          </p>
+          <p class="exemples">
+            <br/>
+            <u>Exemples :</u>
+            <br/>
+          </p>
+          <ul class="exemples">
+            <li><b>"plage"%c</b> - <i>recherche de toutes les occurences de "plage", sans prendre en compte la casse des caractères</i></li>
+            <li><b>[lemma="rugby"]</b> - <i>recherche de toutes les formes du lemme "rugby"</i></li>
+            <li><b>[word="t'|j'|j’|t’"%c] [pos="V"&word="[^aehioué].*"%c]</b> - <i>recherche des cas d'élision devant un verbe débutant par une consonne</i></li>
+          </ul>
+            <p id="viewPos"> <u>Mémo POS</u> </p>
+            <p id="viewMemo"> <u>Mémo regex</u> </p>
         </div>
 
         <div class="col-md-3" id="memo">

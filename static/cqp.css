@@ -27,23 +27,26 @@ h3 {
 }
 
 #aide {
-  text-align: justify;
+  text-align: center;
   display: none;
-  background-color: #955467;
+  background-color: rgba(149, 84, 103, 0.80);
   border : solid 1px #efefef;
   border-right: none;
   border-left: none;
   border-radius: 10px;
   margin-top: 10px;
   padding-top: 10px;
-  padding-right: 20px;
   padding-bottom: 10px;
-  font-size: 13px;
+  font-size: 12px;
+}
+
+.exemples {
+  text-align: justify;
 }
 
 #pos, #memo {
   text-align: justify;
-  background-color: #955467;
+  background-color: rgba(149, 84, 103, 0.80);
   border : solid 1px #efefef;
   border-radius: 10px;
   border-right: none;
