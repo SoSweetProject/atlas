@@ -106,8 +106,8 @@ def reconstituteString(tok_list) :
     no_space_after=['(','[','\'']
     second=False
     reconstituted_string = ""
-    for c in tok_list :
-        if (c==tok_list[-1]) :
+    for i,c in enumerate(tok_list) :
+        if (i==len(tok_list)-1) :
             reconstituted_string+=c
         elif ((c=="'" or c=="\"")) :
             if (second==False) :
