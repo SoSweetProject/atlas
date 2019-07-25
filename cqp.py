@@ -160,7 +160,7 @@ def query():
     #start_time = datetime.datetime.now()
 
     try :
-        pool = Pool(4)
+        pool = Pool(processes=None)
         query_result = pool.starmap(f, corpus_list)
     finally:
         pool.close()
