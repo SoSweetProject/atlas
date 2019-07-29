@@ -24,8 +24,8 @@ def f(corpus,query):
     """
 
     registry_dir="/usr/local/share/cwb/registry"
-    #cqp=PyCQP_interface.CQP(bin='/usr/local/bin/cqp',options='-c -r '+registry_dir)
-    cqp=PyCQP_interface.CQP(bin='/usr/local/cwb/bin//cqp',options='-c -r '+registry_dir)
+    cqp=PyCQP_interface.CQP(bin='/usr/local/bin/cqp',options='-c -r '+registry_dir)
+    #cqp=PyCQP_interface.CQP(bin='/usr/local/cwb/bin//cqp',options='-c -r '+registry_dir)
     corpus_name=splitext(basename(corpus))[0].upper()
     dep=corpus_name.split("_")[1].upper()
     if (re.match(r"^\d$",dep)) :

@@ -121,6 +121,45 @@ function initTable() {
 // Traitement de la réponse
 function responseDisplay(response) {
 
+  //TEST
+  var dics = [{'date': '2014-06', 'dep': '01', 'freq': 4},{'date': '2014-07', 'dep': '01', 'freq': 2},{'date': '2014-08', 'dep': '01', 'freq': 0},{'date': '2014-09', 'dep': '01', 'freq': 0},{'date': '2014-10', 'dep': '01', 'freq': 0},{'date': '2014-11', 'dep': '01', 'freq': 12},{'date': '2014-12', 'dep': '01', 'freq': 5}]
+  var chart = dc.barChart("#freqByMonth");
+    dics.forEach(function (d) {
+      d.date = d3.timeParse("%Y-%m")(d.date);
+      d.freq = +d.freq;
+      d.dep = +d.dep;
+  });
+  var occXFil = crossfilter(dics);
+  var dateDim = occXFil.dimension(function(d) {
+      return d.date;
+  });
+  var occPerMonth = dateDim.group().reduceSum(function(d) {
+    return d.freq;
+  });
+  var totalOcc = occXFil.groupAll().reduceSum(function(fact) {
+     return fact.freq;
+  }).value();
+    chart
+      .dimension(dateDim)
+      .group(occPerMonth)
+      .x(d3.scaleTime().domain([new Date(2014, 4, 1), new Date(2015, 1, 1)]))
+      .xUnits(function() {return 100})
+      .colors(d3.scaleOrdinal().domain(["higher","lower"])
+                              .range(["#955467","#597493"]))
+      .colorAccessor(function(d) {
+          if(d.value > totalOcc/39) {
+            return "higher";
+          } else {
+            return "lower";
+          }
+        })
+      .brushOn(true)
+      .yAxisLabel("nombre d'occurrences")
+      .margins({left: 50, top: 20, right: 10, bottom: 20})
+      .controlsUseVisibility(true);
+          chart.render()
+  //TEST
+
   datas=[];
 
   // affichade du nombre d'occurrences trouvées
