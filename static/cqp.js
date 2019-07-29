@@ -121,8 +121,8 @@ function initTable() {
 // Traitement de la réponse
 function responseDisplay(response) {
 
-  //TEST
-  var dics = [{'date': '2014-06', 'dep': '01', 'freq': 4},{'date': '2014-07', 'dep': '01', 'freq': 2},{'date': '2014-08', 'dep': '01', 'freq': 0},{'date': '2014-09', 'dep': '01', 'freq': 0},{'date': '2014-10', 'dep': '01', 'freq': 0},{'date': '2014-11', 'dep': '01', 'freq': 12},{'date': '2014-12', 'dep': '01', 'freq': 5}]
+  // Création et affichage du diagramme en bâtons du nombre d'occurences par date
+  var dics = response["dc"]
   var chart = dc.barChart("#freqByMonth");
     dics.forEach(function (d) {
       d.date = d3.timeParse("%Y-%m")(d.date);
@@ -142,7 +142,7 @@ function responseDisplay(response) {
     chart
       .dimension(dateDim)
       .group(occPerMonth)
-      .x(d3.scaleTime().domain([new Date(2014, 4, 1), new Date(2015, 1, 1)]))
+      .x(d3.scaleTime().domain([new Date(2014, 4, 1), new Date(2018, 3, 31)]))
       .xUnits(function() {return 100})
       .colors(d3.scaleOrdinal().domain(["higher","lower"])
                               .range(["#955467","#597493"]))
@@ -157,8 +157,7 @@ function responseDisplay(response) {
       .yAxisLabel("nombre d'occurrences")
       .margins({left: 50, top: 20, right: 10, bottom: 20})
       .controlsUseVisibility(true);
-          chart.render()
-  //TEST
+  chart.render()
 
   datas=[];
 

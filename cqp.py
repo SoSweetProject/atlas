@@ -43,6 +43,18 @@ def f(corpus,query):
     cqp.Exec(corpus_name+";")
 
     try :
+        dc = []
+
+        # Récupération des fréquence par date
+        corpusDates = ["2014-06", "2014-07", "2014-08", "2014-09", "2014-10", "2014-11", "2014-12", "2015-01", "2015-02", "2015-03", "2015-04", "2015-05", "2015-06", "2016-02", "2016-03", "2016-04", "2016-05", "2016-06", "2016-07", "2016-08", "2016-09", "2016-10", "2016-11", "2016-12", "2017-01", "2017-02", "2017-03", "2017-04", "2017-05", "2017-06", "2017-07", "2017-08", "2017-09", "2017-10", "2017-11", "2017-12", "2018-01", "2018-02", "2018-03"]
+
+        for d in corpusDates :
+            cqp.Query(query[:-1]+'::match.text_date="'+d+'.*";')
+            rsizeD=int(cqp.Exec("size Last;"))
+
+            dicDC={"date":d, "dep":dep, "freq":rsizeD}
+            dc.append(dicDC)
+
         cqp.Query(query)
         rsize=int(cqp.Exec("size Last;"))
         results=cqp.Dump(first=0,last=20)
@@ -51,7 +63,7 @@ def f(corpus,query):
         # fermeture du processus CQP car sinon ne se ferme pas
         os.popen("kill -9 " + str(cqp.CQP_process.pid))
 
-        resultDep[dep] = {"results":results, "nbTotalResults":rsize}
+        resultDep[dep] = {"results":results, "nbTotalResults":rsize, "dc":dc}
 
         return resultDep
 
@@ -175,8 +187,12 @@ def query():
         freqParDepartement = defaultdict(int)
         # Construction d'un dataframe contenant la fréquence du motif recherché dans chaque département
         # récupération de l'ensemble des résultats dans une seule et même liste
+        allDc=[]
         for depResult in query_result :
             for codeDep in depResult :
+                # Récupération des fréquences par date et par département dans une même liste
+                for e in depResult[codeDep]["dc"] :
+                    allDc.append(e)
                 freqParDepartement[codeDep]=depResult[codeDep]["nbTotalResults"]
                 if depResult[codeDep]["results"]!=[['']] :
                     for result in depResult[codeDep]["results"] :
@@ -293,6 +309,7 @@ def query():
         resultAndSpec["specif"]=specif
         resultAndSpec["nbResults"]=int(df_queryFreq.sum().sum())
         resultAndSpec["nbOccurrences"]=freqParDepartement
+        resultAndSpec["dc"]=allDc
         resultAndSpec=ujson.dumps(resultAndSpec)
 
         return resultAndSpec
