@@ -120,7 +120,6 @@ function initTable() {
 
 // Traitement de la réponse
 function responseDisplay(response) {
-
   // Création et affichage du diagramme en bâtons du nombre d'occurences par date
   var dics = response["dc"]
   var chart = dc.barChart("#freqByMonth");

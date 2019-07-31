@@ -10,14 +10,15 @@ from CWB.CL import Corpus
 import PyCQP_interface
 import pandas as pd
 import numpy as np
+import datetime
 import random
 import ujson
-import datetime
+import ast
 import sys
 import re
 import os
 
-def f(corpus,query):
+def f(corpus,query,allTokensDc):
     """
     Envoi de la requête à CQP et mise en forme des données récupérées
         entrée : nom du corpus sur lequel la requête sera effectuée et la requête en question
@@ -52,7 +53,12 @@ def f(corpus,query):
             cqp.Query(query[:-1]+'::match.text_date="'+d+'.*";')
             rsizeD=int(cqp.Exec("size Last;"))
 
-            dicDC={"date":d, "dep":dep, "freq":rsizeD}
+            # Récupération de la fréquence de tous les tokens
+            for dicAllTokensDc in allTokensDc :
+                if dicAllTokensDc["date"]==d and dicAllTokensDc["dep"]==dep :
+                    freqAllTokens=dicAllTokensDc["freq"]
+
+            dicDC={"date":d, "dep":dep, "freq":rsizeD, "freqAllTokens":freqAllTokens}
             dc.append(dicDC)
 
         cqp.Query(query)
@@ -64,6 +70,8 @@ def f(corpus,query):
         os.popen("kill -9 " + str(cqp.CQP_process.pid))
 
         resultDep[dep] = {"results":results, "nbTotalResults":rsize, "dc":dc}
+
+        print(dep)
 
         return resultDep
 
@@ -165,7 +173,12 @@ def query():
     query=request.form["query"]+";"
     query_result=[]
 
-    corpus_list = [("dep_1",query), ("dep_10",query), ("dep_11",query), ("dep_12",query), ("dep_13",query), ("dep_14",query), ("dep_15",query), ("dep_16",query), ("dep_17",query), ("dep_18",query), ("dep_19",query), ("dep_2",query), ("dep_21",query), ("dep_22",query), ("dep_23",query), ("dep_24",query), ("dep_25",query), ("dep_26",query), ("dep_27",query), ("dep_28",query), ("dep_29",query), ("dep_2a",query), ("dep_2b",query), ("dep_3",query), ("dep_30",query), ("dep_31",query), ("dep_32",query), ("dep_33",query), ("dep_34",query), ("dep_35",query), ("dep_36",query), ("dep_37",query), ("dep_38",query), ("dep_39",query), ("dep_4",query), ("dep_40",query), ("dep_41",query), ("dep_42",query), ("dep_43",query), ("dep_44",query), ("dep_45",query), ("dep_46",query), ("dep_47",query), ("dep_48",query), ("dep_49",query), ("dep_5",query), ("dep_50",query), ("dep_51",query), ("dep_52",query), ("dep_53",query), ("dep_54",query), ("dep_55",query), ("dep_56",query), ("dep_57",query), ("dep_58",query), ("dep_59",query), ("dep_6",query), ("dep_60",query), ("dep_61",query), ("dep_62",query), ("dep_63",query), ("dep_64",query), ("dep_65",query), ("dep_66",query), ("dep_67",query), ("dep_68",query), ("dep_69",query), ("dep_7",query), ("dep_70",query), ("dep_71",query), ("dep_72",query), ("dep_73",query), ("dep_74",query), ("dep_75",query), ("dep_76",query), ("dep_77",query), ("dep_78",query), ("dep_79",query), ("dep_8",query), ("dep_80",query), ("dep_81",query), ("dep_82",query), ("dep_83",query), ("dep_84",query), ("dep_85",query), ("dep_86",query), ("dep_87",query), ("dep_88",query), ("dep_89",query), ("dep_9",query), ("dep_90",query), ("dep_91",query), ("dep_92",query), ("dep_93",query), ("dep_94",query), ("dep_95",query)]
+    # Récupération de la fréquence de l'ensemble des tokens (par date et departement)
+    file = open("static/allTokensDic", "r")
+    fAllTokens = file.read()
+    allTokensDc = ast.literal_eval(fAllTokens)
+
+    corpus_list = [("dep_1",query,allTokensDc), ("dep_10",query,allTokensDc), ("dep_11",query,allTokensDc), ("dep_12",query,allTokensDc), ("dep_13",query,allTokensDc), ("dep_14",query,allTokensDc), ("dep_15",query,allTokensDc), ("dep_16",query,allTokensDc), ("dep_17",query,allTokensDc), ("dep_18",query,allTokensDc), ("dep_19",query,allTokensDc), ("dep_2",query,allTokensDc), ("dep_21",query,allTokensDc), ("dep_22",query,allTokensDc), ("dep_23",query,allTokensDc), ("dep_24",query,allTokensDc), ("dep_25",query,allTokensDc), ("dep_26",query,allTokensDc), ("dep_27",query,allTokensDc), ("dep_28",query,allTokensDc), ("dep_29",query,allTokensDc), ("dep_2a",query,allTokensDc), ("dep_2b",query,allTokensDc), ("dep_3",query,allTokensDc), ("dep_30",query,allTokensDc), ("dep_31",query,allTokensDc), ("dep_32",query,allTokensDc), ("dep_33",query,allTokensDc), ("dep_34",query,allTokensDc), ("dep_35",query,allTokensDc), ("dep_36",query,allTokensDc), ("dep_37",query,allTokensDc), ("dep_38",query,allTokensDc), ("dep_39",query,allTokensDc), ("dep_4",query,allTokensDc), ("dep_40",query,allTokensDc), ("dep_41",query,allTokensDc), ("dep_42",query,allTokensDc), ("dep_43",query,allTokensDc), ("dep_44",query,allTokensDc), ("dep_45",query,allTokensDc), ("dep_46",query,allTokensDc), ("dep_47",query,allTokensDc), ("dep_48",query,allTokensDc), ("dep_49",query,allTokensDc), ("dep_5",query,allTokensDc), ("dep_50",query,allTokensDc), ("dep_51",query,allTokensDc), ("dep_52",query,allTokensDc), ("dep_53",query,allTokensDc), ("dep_54",query,allTokensDc), ("dep_55",query,allTokensDc), ("dep_56",query,allTokensDc), ("dep_57",query,allTokensDc), ("dep_58",query,allTokensDc), ("dep_59",query,allTokensDc), ("dep_6",query,allTokensDc), ("dep_60",query,allTokensDc), ("dep_61",query,allTokensDc), ("dep_62",query,allTokensDc), ("dep_63",query,allTokensDc), ("dep_64",query,allTokensDc), ("dep_65",query,allTokensDc), ("dep_66",query,allTokensDc), ("dep_67",query,allTokensDc), ("dep_68",query,allTokensDc), ("dep_69",query,allTokensDc), ("dep_7",query,allTokensDc), ("dep_70",query,allTokensDc), ("dep_71",query,allTokensDc), ("dep_72",query,allTokensDc), ("dep_73",query,allTokensDc), ("dep_74",query,allTokensDc), ("dep_75",query,allTokensDc), ("dep_76",query,allTokensDc), ("dep_77",query,allTokensDc), ("dep_78",query,allTokensDc), ("dep_79",query,allTokensDc), ("dep_8",query,allTokensDc), ("dep_80",query,allTokensDc), ("dep_81",query,allTokensDc), ("dep_82",query,allTokensDc), ("dep_83",query,allTokensDc), ("dep_84",query,allTokensDc), ("dep_85",query,allTokensDc), ("dep_86",query,allTokensDc), ("dep_87",query,allTokensDc), ("dep_88",query,allTokensDc), ("dep_89",query,allTokensDc), ("dep_9",query,allTokensDc), ("dep_90",query,allTokensDc), ("dep_91",query,allTokensDc), ("dep_92",query,allTokensDc), ("dep_93",query,allTokensDc), ("dep_94",query,allTokensDc), ("dep_95",query,allTokensDc)]
 
     # Ici, autant de processus qu'indiqués en argument de Pool vont se partager les tâches (récupérer pour chaque département le résultat de la requête cqp)
 
