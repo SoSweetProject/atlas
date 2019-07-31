@@ -122,22 +122,35 @@ function initTable() {
 function responseDisplay(response) {
   // Création et affichage du diagramme en bâtons du nombre d'occurences par date
   var dics = response["dc"]
+
   var chart = dc.barChart("#freqByMonth");
     dics.forEach(function (d) {
       d.date = d3.timeParse("%Y-%m")(d.date);
       d.freq = +d.freq;
       d.dep = +d.dep;
+      d.freqAllTokens = +d.freqAllTokens;
   });
+
   var occXFil = crossfilter(dics);
   var dateDim = occXFil.dimension(function(d) {
       return d.date;
   });
+  var depDim = occXFil.dimension(function(d) {
+      return d.dep;
+  });
   var occPerMonth = dateDim.group().reduceSum(function(d) {
     return d.freq;
   });
-  var totalOcc = occXFil.groupAll().reduceSum(function(fact) {
-     return fact.freq;
+  var occPerDep = depDim.group().reduceSum(function(d) {
+    return d.freq;
+  });
+  var occPerDepAllTokens = depDim.group().reduceSum(function(d) {
+    return d.freqAllTokens;
+  });
+  var totalOcc = occXFil.groupAll().reduceSum(function(d) {
+     return d.freq;
   }).value();
+
     chart
       .dimension(dateDim)
       .group(occPerMonth)
@@ -156,7 +169,33 @@ function responseDisplay(response) {
       .yAxisLabel("nombre d'occurrences")
       .margins({left: 50, top: 20, right: 10, bottom: 20})
       .controlsUseVisibility(true);
-  chart.render()
+
+  dc.renderAll()
+
+  // pour la période séléctionnée, calcul des spécificités pour chaque département :
+  chart.on('filtered', function(chart) {
+    var selectionOccPerDep = occPerDep.top(Infinity)
+    var selectionOccPerDepAllTokens = occPerDepAllTokens.top(Infinity)
+    for(var i=0; i < selectionOccPerDep.length; i++) {
+      dep = selectionOccPerDep[i].key;
+      // Récupération de la fréquence totale du motif
+      K = occXFil.groupAll().reduceSum(function(d){return d.freq;}).value();
+      // Récupération de la fréquence du motif dans le département
+      k = selectionOccPerDep[i].value;
+      // Récupératin de la fréquence totale de tous les tokens
+      N = occXFil.groupAll().reduceSum(function(d){return d.freqAllTokens;}).value();
+      // Récupération de la fréquence de tous les tokens dans le département
+      n = _.findWhere(selectionOccPerDepAllTokens, {key: dep})["value"];
+      // Calcul de la spécificité
+      if (k > n * K / N) {
+        specif = Math.abs(Math.log10(jStat.hypgeom.pdf(k, N, K, n)))
+      } else {
+        specif = -Math.abs(Math.log10(jStat.hypgeom.pdf(k, N, K, n)))
+      }
+      console.log(dep)
+      console.log(specif)
+    }
+  });
 
   datas=[];
 
