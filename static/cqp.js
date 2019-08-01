@@ -120,7 +120,7 @@ function initTable() {
 
 // Traitement de la réponse
 function responseDisplay(response) {
-  // Création et affichage du diagramme en bâtons du nombre d'occurences par date
+  // Création et affichage du diagramme en bâtons du nombre d'occurrences par date
   var dics = response["dc"]
 
   var chart = dc.barChart("#freqByMonth");
@@ -177,7 +177,9 @@ function responseDisplay(response) {
     var selectionOccPerDep = occPerDep.top(Infinity)
     var selectionOccPerDepAllTokens = occPerDepAllTokens.top(Infinity)
     var specifByDep = {};
+    var freqByDep = {};
     for(var i=0; i < selectionOccPerDep.length; i++) {
+      freqByDep[selectionOccPerDep[i].key]=selectionOccPerDep[i].value
       dep = selectionOccPerDep[i].key;
       // Récupération de la fréquence totale du motif
       K = occXFil.groupAll().reduceSum(function(d){return d.freq;}).value();
@@ -201,6 +203,12 @@ function responseDisplay(response) {
       }
       specifByDep[dep.toString()]=specif;
     }
+    nbOccurrencesSelection = Object.values(freqByDep).reduce((a, b) => a + b);
+
+    // Affichage du nombre d'occurences dans la sélection
+    document.getElementById("nbOccurrences").innerHTML = ""
+    document.getElementById("nbOccurrences").append(new Intl.NumberFormat().format(response["nbResults"])+" occurrences dans le corpus ("+nbOccurrencesSelection+" dans la sélection)");
+
     // Coloration de la carte en fonction des spécificités du motif recherché par département
     departements.eachLayer(function(layer) {
       style = {
@@ -212,7 +220,17 @@ function responseDisplay(response) {
         fillOpacity: 0.7
       };
       layer.setStyle(style);
-      nbOccurrences=response["nbResults"]
+      layer.on({
+        mouseover: function(e) {
+          var popup = L.popup()
+            .setLatLng(e.latlng)
+            .setContent("<dt>"+e.target.feature.properties.code +' - '+ e.target.feature.properties.nom +'</dt><dl>'+ freqByDep[e.target.feature.properties.code] +' occurrences</dl>')
+            .openOn(map);
+        },
+        mouseout: function(e) {
+          map.closePopup()
+        }
+      });
     })
   });
 
