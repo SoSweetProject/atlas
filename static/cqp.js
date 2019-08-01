@@ -127,7 +127,7 @@ function responseDisplay(response) {
     dics.forEach(function (d) {
       d.date = d3.timeParse("%Y-%m")(d.date);
       d.freq = +d.freq;
-      d.dep = +d.dep;
+      d.dep = d.dep;
       d.freqAllTokens = +d.freqAllTokens;
   });
 
@@ -176,6 +176,7 @@ function responseDisplay(response) {
   chart.on('filtered', function(chart) {
     var selectionOccPerDep = occPerDep.top(Infinity)
     var selectionOccPerDepAllTokens = occPerDepAllTokens.top(Infinity)
+    var specifByDep = {};
     for(var i=0; i < selectionOccPerDep.length; i++) {
       dep = selectionOccPerDep[i].key;
       // Récupération de la fréquence totale du motif
@@ -189,12 +190,30 @@ function responseDisplay(response) {
       // Calcul de la spécificité
       if (k > n * K / N) {
         specif = Math.abs(Math.log10(jStat.hypgeom.pdf(k, N, K, n)))
+        if (specif > 10) {
+          specif=10
+        }
       } else {
         specif = -Math.abs(Math.log10(jStat.hypgeom.pdf(k, N, K, n)))
+        if (specif < -10) {
+          specif=-10;
+        }
       }
-      console.log(dep)
-      console.log(specif)
+      specifByDep[dep.toString()]=specif;
     }
+    // Coloration de la carte en fonction des spécificités du motif recherché par département
+    departements.eachLayer(function(layer) {
+      style = {
+        fillColor: color(specifByDep[layer.feature.properties.code]),
+        weight: 2,
+        opacity: 1,
+        color: 'white',
+        dashArray: '3',
+        fillOpacity: 0.7
+      };
+      layer.setStyle(style);
+      nbOccurrences=response["nbResults"]
+    })
   });
 
   datas=[];
