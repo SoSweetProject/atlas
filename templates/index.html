@@ -29,7 +29,7 @@
             <label> Requête &#x2192; </label>
             <input type="text" id="query" name="query"/>
             <div id="submit">
-              <input id="button" type="submit" value="Soumettre"/>
+              <input class="button" id="submitButton" type="submit" value="Soumettre"/>
               <div id="loader"></div>
             </div>
           </form>
@@ -227,7 +227,8 @@
       </div>
 
       <div class="row" id="dc">
-        <div class="col-md-12">
+        <div class="col-md-12" id="diagramme">
+          <button class="button" id="resetDiagramme"> Réinitialiser </button>
           <div id="freqByMonth"></div>
         </div>
       </div>

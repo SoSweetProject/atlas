@@ -120,10 +120,12 @@ function initTable() {
 
 // Traitement de la réponse
 function responseDisplay(response) {
+  nbOccurrences=response["nbResults"]
   // Création et affichage du diagramme en bâtons du nombre d'occurrences par date
+  document.getElementById("diagramme").style.display='block'
   var dics = response["dc"]
-
   var chart = dc.barChart("#freqByMonth");
+
     dics.forEach(function (d) {
       d.date = d3.timeParse("%Y-%m")(d.date);
       d.freq = +d.freq;
@@ -151,24 +153,24 @@ function responseDisplay(response) {
      return d.freq;
   }).value();
 
-    chart
-      .dimension(dateDim)
-      .group(occPerMonth)
-      .x(d3.scaleTime().domain([new Date(2014, 4, 1), new Date(2018, 3, 31)]))
-      .xUnits(function() {return 100})
-      .colors(d3.scaleOrdinal().domain(["higher","lower"])
-                              .range(["#955467","#597493"]))
-      .colorAccessor(function(d) {
-          if(d.value > totalOcc/39) {
-            return "higher";
-          } else {
-            return "lower";
-          }
-        })
-      .brushOn(true)
-      .yAxisLabel("nombre d'occurrences")
-      .margins({left: 50, top: 20, right: 10, bottom: 20})
-      .controlsUseVisibility(true);
+  chart
+    .dimension(dateDim)
+    .group(occPerMonth)
+    .x(d3.scaleTime().domain([new Date(2014, 4, 1), new Date(2018, 3, 31)]))
+    .xUnits(function() {return 100})
+    .colors(d3.scaleOrdinal().domain(["higher","lower"])
+                            .range(["#955467","#597493"]))
+    .colorAccessor(function(d) {
+        if(d.value > totalOcc/39) {
+          return "higher";
+        } else {
+          return "lower";
+        }
+      })
+    .brushOn(true)
+    .yAxisLabel("nombre d'occurrences")
+    .margins({left: 50, top: 20, right: 10, bottom: 20})
+    .controlsUseVisibility(true);
 
   dc.renderAll()
 
@@ -209,7 +211,7 @@ function responseDisplay(response) {
     document.getElementById("nbOccurrences").innerHTML = ""
     document.getElementById("nbOccurrences").append(new Intl.NumberFormat().format(response["nbResults"])+" occurrences dans le corpus ("+nbOccurrencesSelection+" dans la sélection)");
 
-    // Coloration de la carte en fonction des spécificités du motif recherché par département
+    // Coloration de la carte en fonction des spécificités du motif recherché par département et dans la période sélectionnée
     departements.eachLayer(function(layer) {
       style = {
         fillColor: color(specifByDep[layer.feature.properties.code]),
@@ -234,11 +236,15 @@ function responseDisplay(response) {
     })
   });
 
+  document.getElementById("resetDiagramme").onclick = function () {
+    resetDiagramme(chart,nbOccurrences);
+  };
+
   datas=[];
 
   // affichade du nombre d'occurrences trouvées
   document.getElementById("nbOccurrences").innerHTML = ""
-  document.getElementById("nbOccurrences").append(new Intl.NumberFormat().format(response["nbResults"])+" occurrences dans le corpus");
+  document.getElementById("nbOccurrences").append(nbOccurrences+" occurrences dans le corpus");
 
   // Coloration de la carte en fonction des spécificités du motif recherché par département
   departements.eachLayer(function(layer) {
@@ -251,7 +257,6 @@ function responseDisplay(response) {
       fillOpacity: 0.7
     };
     layer.setStyle(style);
-    nbOccurrences=response["nbResults"]
     layer.on({
       mouseover: function(e) {
         var popup = L.popup()
@@ -268,6 +273,14 @@ function responseDisplay(response) {
   // Ajout des résultats obtenus dans la dataTable
   $("#table").DataTable().clear();
   $("#table").DataTable().rows.add(response["result"]).draw();
+}
+
+// enlever le filtre du diagramme
+function resetDiagramme(chart,nbOccurrences) {
+  chart.filterAll();
+  dc.redrawAll();
+  document.getElementById("nbOccurrences").innerHTML = ""
+  document.getElementById("nbOccurrences").append(nbOccurrences+" occurrences dans le corpus");
 }
 
 $(document).ready(initTable())
@@ -299,7 +312,7 @@ $(document).ready(function(){
 // Envoi de la requête (cf. cqp.py)
 myForm.addEventListener('submit', function(e) {
   $('form :submit').attr("disabled", true);
-  document.getElementById('button').style.visibility='hidden';
+  document.getElementById('submitButton').style.visibility='hidden';
   document.getElementById('loader').style.visibility='visible';
   $.ajax({
       type: "POST",
@@ -326,6 +339,7 @@ myForm.addEventListener('submit', function(e) {
           })
           $('#table').dataTable().fnClearTable();
           document.getElementById("nbOccurrences").innerHTML = ""
+          document.getElementById("diagramme").style.display='none'
         } else {
           response=JSON.parse(response);
           // Si la requête n'a pas donné de résultats
@@ -347,12 +361,13 @@ myForm.addEventListener('submit', function(e) {
             })
             $('#table').dataTable().fnClearTable();
             document.getElementById("nbOccurrences").innerHTML = ""
+            document.getElementById("diagramme").style.display='none'
           } else {
             data = responseDisplay(response);
           }
         }
         document.getElementById('loader').style.visibility='hidden';
-        document.getElementById('button').style.visibility='visible';
+        document.getElementById('submitButton').style.visibility='visible';
         $('form :submit').attr("disabled", false);
       }
     })
