@@ -120,9 +120,12 @@ function initTable() {
 
 // Traitement de la réponse
 function responseDisplay(response) {
+  // pour que le diagramme s'affiche correctement
+  $('#dc').slideDown();
   nbOccurrences=response["nbResults"]
   // Création et affichage du diagramme en bâtons du nombre d'occurrences par date
   document.getElementById("diagramme").style.display='block'
+  document.getElementById("affichageDiagramme").style.display='block'
   var dics = response["dc"]
   var chart = dc.barChart("#freqByMonth");
 
@@ -286,26 +289,26 @@ function resetDiagramme(chart,nbOccurrences) {
 $(document).ready(initTable())
 document.getElementById('loader').style.visibility='hidden';
 
-// afficher l'aide
 $(document).ready(function(){
-    $('#img').click(function(){
-      $('#aide').slideToggle();
-      $('#memo').slideUp();
-      $('#pos').slideUp();
+  // afficher l'aide
+  $('#img').click(function(){
+    $('#aide').slideToggle();
+    $('#memo').slideUp();
+    $('#pos').slideUp();
   });
-});
-// afficher la liste des pos
-$(document).ready(function(){
-    $('#viewPos').click(function(){
-      document.getElementById('memo').style.display=null;
-      document.getElementById('pos').style.display="inline";
+  // afficher la liste des pos
+  $('#viewPos').click(function(){
+    document.getElementById('memo').style.display=null;
+    document.getElementById('pos').style.display="inline";
   });
-});
-//afficher le memo
-$(document).ready(function(){
-    $('#viewMemo').click(function(){
-      document.getElementById('memo').style.display="inline";
-      document.getElementById('pos').style.display=null;
+  // afficher le mémo
+  $('#viewMemo').click(function(){
+    document.getElementById('memo').style.display="inline";
+    document.getElementById('pos').style.display=null;
+  });
+  // afficher le diagramme
+  $('#dcView').click(function(){
+    $('#dc').slideToggle();
   });
 });
 
@@ -340,6 +343,7 @@ myForm.addEventListener('submit', function(e) {
           $('#table').dataTable().fnClearTable();
           document.getElementById("nbOccurrences").innerHTML = ""
           document.getElementById("diagramme").style.display='none'
+          document.getElementById("affichageDiagramme").style.display='none'
         } else {
           response=JSON.parse(response);
           // Si la requête n'a pas donné de résultats
@@ -362,6 +366,7 @@ myForm.addEventListener('submit', function(e) {
             $('#table').dataTable().fnClearTable();
             document.getElementById("nbOccurrences").innerHTML = ""
             document.getElementById("diagramme").style.display='none'
+            document.getElementById("affichageDiagramme").style.display='none'
           } else {
             data = responseDisplay(response);
           }

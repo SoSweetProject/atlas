@@ -93,6 +93,15 @@ label {
   100% { transform: rotate(360deg); }
 }
 
+#affichageDiagramme {
+  display: None;
+  margin-top : 10px;
+}
+
+#dcView {
+  color: #955467;
+}
+
 #diagramme {
   display: none;
 }
