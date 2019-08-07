@@ -13,6 +13,10 @@ h3 {
   color: #597493;
 }
 
+h4 {
+  color: #597493;
+}
+
 #firstRow {
   background-color: #597493;
   color: #efefef;
@@ -102,7 +106,7 @@ label {
   color: #955467;
 }
 
-#diagramme {
+div[name="diagramme"] {
   display: none;
 }
 

@@ -123,8 +123,11 @@ function responseDisplay(response) {
   // pour que le diagramme s'affiche correctement
   $('#dc').slideDown();
   nbOccurrences=response["nbResults"]
-  // Création et affichage du diagramme en bâtons du nombre d'occurrences par date
-  document.getElementById("diagramme").style.display='block'
+  // Création et affichage du diagramme en bâtons de la couverture du motif dans le corpus par date
+  diagElem = document.querySelectorAll('div[name="diagramme"]');
+  for (var e = 0, len=diagElem.length; e < len; e++) {
+    diagElem[e].style.display="block"
+  };
   document.getElementById("affichageDiagramme").style.display='block'
   var dics = response["dc"]
   var chart = dc.barChart("#freqByMonth");
@@ -146,39 +149,53 @@ function responseDisplay(response) {
   var occPerMonth = dateDim.group().reduceSum(function(d) {
     return d.freq;
   });
+  var reprPatternPerMonth = dateDim.group().reduceSum(function(d) {
+    var reprPattern = d.freq/d.freqAllTokens;
+    if (isNaN(reprPattern)) {
+      reprPattern = 0;
+    };
+    return reprPattern;
+  });
   var occPerDep = depDim.group().reduceSum(function(d) {
     return d.freq;
   });
   var occPerDepAllTokens = depDim.group().reduceSum(function(d) {
     return d.freqAllTokens;
   });
-  var totalOcc = occXFil.groupAll().reduceSum(function(d) {
-     return d.freq;
+  var totalReprPattern = occXFil.groupAll().reduceSum(function(d) {
+    var reprPattern = d.freq/d.freqAllTokens;
+    if (isNaN(reprPattern)) {
+      reprPattern = 0;
+    }
+    return reprPattern;
   }).value();
 
   chart
     .dimension(dateDim)
-    .group(occPerMonth)
-    .x(d3.scaleTime().domain([new Date(2014, 4, 1), new Date(2018, 3, 31)]))
+    .group(reprPatternPerMonth)
+    .elasticY(true)
+    .x(d3.scaleTime().domain([new Date(2014, 5, 1), new Date(2018, 3, 1)]))
     .xUnits(function() {return 100})
     .colors(d3.scaleOrdinal().domain(["higher","lower"])
                             .range(["#955467","#597493"]))
     .colorAccessor(function(d) {
-        if(d.value > totalOcc/39) {
+        if(d.value > totalReprPattern/39) {
           return "higher";
         } else {
           return "lower";
         }
       })
     .brushOn(true)
-    .yAxisLabel("nombre d'occurrences")
     .margins({left: 50, top: 20, right: 10, bottom: 20})
+    .elasticY(true)
+    .yAxisPadding('5%')
+    .renderHorizontalGridLines(true)
     .controlsUseVisibility(true);
 
   dc.renderAll()
 
   // pour la période séléctionnée, calcul des spécificités pour chaque département :
-  chart.on('filtered', function(chart) {
+  chart.on('filtered', function(c) {
     var selectionOccPerDep = occPerDep.top(Infinity)
     var selectionOccPerDepAllTokens = occPerDepAllTokens.top(Infinity)
     var specifByDep = {};
@@ -341,9 +358,12 @@ myForm.addEventListener('submit', function(e) {
             });
           })
           $('#table').dataTable().fnClearTable();
-          document.getElementById("nbOccurrences").innerHTML = ""
-          document.getElementById("diagramme").style.display='none'
-          document.getElementById("affichageDiagramme").style.display='none'
+          document.getElementById("nbOccurrences").innerHTML = "";
+          diagElem = document.querySelectorAll('div[name="diagramme"]');
+          for (var e = 0, len=diagElem.length; e < len; e++) {
+            diagElem[e].style.display="none"
+          };
+          document.getElementById("affichageDiagramme").style.display='none';
         } else {
           response=JSON.parse(response);
           // Si la requête n'a pas donné de résultats
@@ -365,7 +385,10 @@ myForm.addEventListener('submit', function(e) {
             })
             $('#table').dataTable().fnClearTable();
             document.getElementById("nbOccurrences").innerHTML = ""
-            document.getElementById("diagramme").style.display='none'
+            diagElem = document.querySelectorAll('div[name="diagramme"]');
+            for (var e = 0, len=diagElem.length; e < len; e++) {
+              diagElem[e].style.display="none"
+            };
             document.getElementById("affichageDiagramme").style.display='none'
           } else {
             data = responseDisplay(response);
