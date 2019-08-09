@@ -18,7 +18,7 @@ import sys
 import re
 import os
 
-def f(corpus,query,allTokensDc):
+def f(corpus,query,allTokensDc,diag):
     """
     Envoi de la requête à CQP et mise en forme des données récupérées
         entrée : nom du corpus sur lequel la requête sera effectuée et la requête en question
@@ -44,22 +44,26 @@ def f(corpus,query,allTokensDc):
     cqp.Exec(corpus_name+";")
 
     try :
+
         dc = []
 
-        # Récupération des fréquence par date
-        corpusDates = ["2014-06", "2014-07", "2014-08", "2014-09", "2014-10", "2014-11", "2014-12", "2015-01", "2015-02", "2015-03", "2015-04", "2015-05", "2015-06", "2016-02", "2016-03", "2016-04", "2016-05", "2016-06", "2016-07", "2016-08", "2016-09", "2016-10", "2016-11", "2016-12", "2017-01", "2017-02", "2017-03", "2017-04", "2017-05", "2017-06", "2017-07", "2017-08", "2017-09", "2017-10", "2017-11", "2017-12", "2018-01", "2018-02", "2018-03"]
+        # si on veut avoir le diagramme
+        if diag=="true" :
 
-        for d in corpusDates :
-            cqp.Query(query[:-1]+'::match.text_date="'+d+'.*";')
-            rsizeD=int(cqp.Exec("size Last;"))
+            # Récupération des fréquence par date
+            corpusDates = ["2014-06", "2014-07", "2014-08", "2014-09", "2014-10", "2014-11", "2014-12", "2015-01", "2015-02", "2015-03", "2015-04", "2015-05", "2015-06", "2016-02", "2016-03", "2016-04", "2016-05", "2016-06", "2016-07", "2016-08", "2016-09", "2016-10", "2016-11", "2016-12", "2017-01", "2017-02", "2017-03", "2017-04", "2017-05", "2017-06", "2017-07", "2017-08", "2017-09", "2017-10", "2017-11", "2017-12", "2018-01", "2018-02", "2018-03"]
 
-            # Récupération de la fréquence de tous les tokens
-            for dicAllTokensDc in allTokensDc :
-                if dicAllTokensDc["date"]==d and dicAllTokensDc["dep"]==dep :
-                    freqAllTokens=dicAllTokensDc["freq"]
+            for d in corpusDates :
+                cqp.Query(query[:-1]+'::match.text_date="'+d+'.*";')
+                rsizeD=int(cqp.Exec("size Last;"))
 
-            dicDC={"date":d, "dep":dep, "freq":rsizeD, "freqAllTokens":freqAllTokens}
-            dc.append(dicDC)
+                # Récupération de la fréquence de tous les tokens
+                for dicAllTokensDc in allTokensDc :
+                    if dicAllTokensDc["date"]==d and dicAllTokensDc["dep"]==dep :
+                        freqAllTokens=dicAllTokensDc["freq"]
+
+                dicDC={"date":d, "dep":dep, "freq":rsizeD, "freqAllTokens":freqAllTokens}
+                dc.append(dicDC)
 
         cqp.Query(query)
         rsize=int(cqp.Exec("size Last;"))
@@ -169,7 +173,7 @@ def getData():
 """
 @app.route('/query', methods=["POST"])
 def query():
-
+    diag = request.form["diag"]
     query=request.form["query"]+";"
     query_result=[]
 
@@ -178,7 +182,7 @@ def query():
     fAllTokens = file.read()
     allTokensDc = ast.literal_eval(fAllTokens)
 
-    corpus_list = [("dep_1",query,allTokensDc), ("dep_10",query,allTokensDc), ("dep_11",query,allTokensDc), ("dep_12",query,allTokensDc), ("dep_13",query,allTokensDc), ("dep_14",query,allTokensDc), ("dep_15",query,allTokensDc), ("dep_16",query,allTokensDc), ("dep_17",query,allTokensDc), ("dep_18",query,allTokensDc), ("dep_19",query,allTokensDc), ("dep_2",query,allTokensDc), ("dep_21",query,allTokensDc), ("dep_22",query,allTokensDc), ("dep_23",query,allTokensDc), ("dep_24",query,allTokensDc), ("dep_25",query,allTokensDc), ("dep_26",query,allTokensDc), ("dep_27",query,allTokensDc), ("dep_28",query,allTokensDc), ("dep_29",query,allTokensDc), ("dep_2a",query,allTokensDc), ("dep_2b",query,allTokensDc), ("dep_3",query,allTokensDc), ("dep_30",query,allTokensDc), ("dep_31",query,allTokensDc), ("dep_32",query,allTokensDc), ("dep_33",query,allTokensDc), ("dep_34",query,allTokensDc), ("dep_35",query,allTokensDc), ("dep_36",query,allTokensDc), ("dep_37",query,allTokensDc), ("dep_38",query,allTokensDc), ("dep_39",query,allTokensDc), ("dep_4",query,allTokensDc), ("dep_40",query,allTokensDc), ("dep_41",query,allTokensDc), ("dep_42",query,allTokensDc), ("dep_43",query,allTokensDc), ("dep_44",query,allTokensDc), ("dep_45",query,allTokensDc), ("dep_46",query,allTokensDc), ("dep_47",query,allTokensDc), ("dep_48",query,allTokensDc), ("dep_49",query,allTokensDc), ("dep_5",query,allTokensDc), ("dep_50",query,allTokensDc), ("dep_51",query,allTokensDc), ("dep_52",query,allTokensDc), ("dep_53",query,allTokensDc), ("dep_54",query,allTokensDc), ("dep_55",query,allTokensDc), ("dep_56",query,allTokensDc), ("dep_57",query,allTokensDc), ("dep_58",query,allTokensDc), ("dep_59",query,allTokensDc), ("dep_6",query,allTokensDc), ("dep_60",query,allTokensDc), ("dep_61",query,allTokensDc), ("dep_62",query,allTokensDc), ("dep_63",query,allTokensDc), ("dep_64",query,allTokensDc), ("dep_65",query,allTokensDc), ("dep_66",query,allTokensDc), ("dep_67",query,allTokensDc), ("dep_68",query,allTokensDc), ("dep_69",query,allTokensDc), ("dep_7",query,allTokensDc), ("dep_70",query,allTokensDc), ("dep_71",query,allTokensDc), ("dep_72",query,allTokensDc), ("dep_73",query,allTokensDc), ("dep_74",query,allTokensDc), ("dep_75",query,allTokensDc), ("dep_76",query,allTokensDc), ("dep_77",query,allTokensDc), ("dep_78",query,allTokensDc), ("dep_79",query,allTokensDc), ("dep_8",query,allTokensDc), ("dep_80",query,allTokensDc), ("dep_81",query,allTokensDc), ("dep_82",query,allTokensDc), ("dep_83",query,allTokensDc), ("dep_84",query,allTokensDc), ("dep_85",query,allTokensDc), ("dep_86",query,allTokensDc), ("dep_87",query,allTokensDc), ("dep_88",query,allTokensDc), ("dep_89",query,allTokensDc), ("dep_9",query,allTokensDc), ("dep_90",query,allTokensDc), ("dep_91",query,allTokensDc), ("dep_92",query,allTokensDc), ("dep_93",query,allTokensDc), ("dep_94",query,allTokensDc), ("dep_95",query,allTokensDc)]
+    corpus_list = [("dep_1",query,allTokensDc,diag), ("dep_10",query,allTokensDc,diag), ("dep_11",query,allTokensDc,diag), ("dep_12",query,allTokensDc,diag), ("dep_13",query,allTokensDc,diag), ("dep_14",query,allTokensDc,diag), ("dep_15",query,allTokensDc,diag), ("dep_16",query,allTokensDc,diag), ("dep_17",query,allTokensDc,diag), ("dep_18",query,allTokensDc,diag), ("dep_19",query,allTokensDc,diag), ("dep_2",query,allTokensDc,diag), ("dep_21",query,allTokensDc,diag), ("dep_22",query,allTokensDc,diag), ("dep_23",query,allTokensDc,diag), ("dep_24",query,allTokensDc,diag), ("dep_25",query,allTokensDc,diag), ("dep_26",query,allTokensDc,diag), ("dep_27",query,allTokensDc,diag), ("dep_28",query,allTokensDc,diag), ("dep_29",query,allTokensDc,diag), ("dep_2a",query,allTokensDc,diag), ("dep_2b",query,allTokensDc,diag), ("dep_3",query,allTokensDc,diag), ("dep_30",query,allTokensDc,diag), ("dep_31",query,allTokensDc,diag), ("dep_32",query,allTokensDc,diag), ("dep_33",query,allTokensDc,diag), ("dep_34",query,allTokensDc,diag), ("dep_35",query,allTokensDc,diag), ("dep_36",query,allTokensDc,diag), ("dep_37",query,allTokensDc,diag), ("dep_38",query,allTokensDc,diag), ("dep_39",query,allTokensDc,diag), ("dep_4",query,allTokensDc,diag), ("dep_40",query,allTokensDc,diag), ("dep_41",query,allTokensDc,diag), ("dep_42",query,allTokensDc,diag), ("dep_43",query,allTokensDc,diag), ("dep_44",query,allTokensDc,diag), ("dep_45",query,allTokensDc,diag), ("dep_46",query,allTokensDc,diag), ("dep_47",query,allTokensDc,diag), ("dep_48",query,allTokensDc,diag), ("dep_49",query,allTokensDc,diag), ("dep_5",query,allTokensDc,diag), ("dep_50",query,allTokensDc,diag), ("dep_51",query,allTokensDc,diag), ("dep_52",query,allTokensDc,diag), ("dep_53",query,allTokensDc,diag), ("dep_54",query,allTokensDc,diag), ("dep_55",query,allTokensDc,diag), ("dep_56",query,allTokensDc,diag), ("dep_57",query,allTokensDc,diag), ("dep_58",query,allTokensDc,diag), ("dep_59",query,allTokensDc,diag), ("dep_6",query,allTokensDc,diag), ("dep_60",query,allTokensDc,diag), ("dep_61",query,allTokensDc,diag), ("dep_62",query,allTokensDc,diag), ("dep_63",query,allTokensDc,diag), ("dep_64",query,allTokensDc,diag), ("dep_65",query,allTokensDc,diag), ("dep_66",query,allTokensDc,diag), ("dep_67",query,allTokensDc,diag), ("dep_68",query,allTokensDc,diag), ("dep_69",query,allTokensDc,diag), ("dep_7",query,allTokensDc,diag), ("dep_70",query,allTokensDc,diag), ("dep_71",query,allTokensDc,diag), ("dep_72",query,allTokensDc,diag), ("dep_73",query,allTokensDc,diag), ("dep_74",query,allTokensDc,diag), ("dep_75",query,allTokensDc,diag), ("dep_76",query,allTokensDc,diag), ("dep_77",query,allTokensDc,diag), ("dep_78",query,allTokensDc,diag), ("dep_79",query,allTokensDc,diag), ("dep_8",query,allTokensDc,diag), ("dep_80",query,allTokensDc,diag), ("dep_81",query,allTokensDc,diag), ("dep_82",query,allTokensDc,diag), ("dep_83",query,allTokensDc,diag), ("dep_84",query,allTokensDc,diag), ("dep_85",query,allTokensDc,diag), ("dep_86",query,allTokensDc,diag), ("dep_87",query,allTokensDc,diag), ("dep_88",query,allTokensDc,diag), ("dep_89",query,allTokensDc,diag), ("dep_9",query,allTokensDc,diag), ("dep_90",query,allTokensDc,diag), ("dep_91",query,allTokensDc,diag), ("dep_92",query,allTokensDc,diag), ("dep_93",query,allTokensDc,diag), ("dep_94",query,allTokensDc,diag), ("dep_95",query,allTokensDc,diag)]
 
     # Ici, autant de processus qu'indiqués en argument de Pool vont se partager les tâches (récupérer pour chaque département le résultat de la requête cqp)
 
