@@ -339,6 +339,7 @@ $(document).ready(function(){
 // Envoi de la requête (cf. cqp.py)
 myForm.addEventListener('submit', function(e) {
   $('form :submit').attr("disabled", true);
+  document.getElementById('checkboxButton').disabled = true;
   document.getElementById('submitButton').style.visibility='hidden';
   document.getElementById('loader').style.visibility='visible';
   if(document.getElementById("checkboxButton").checked == true) {
@@ -410,6 +411,7 @@ myForm.addEventListener('submit', function(e) {
         document.getElementById('loader').style.visibility='hidden';
         document.getElementById('submitButton').style.visibility='visible';
         $('form :submit').attr("disabled", false);
+        document.getElementById('checkboxButton').disabled = false;
       }
     })
   e.preventDefault();

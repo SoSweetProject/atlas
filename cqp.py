@@ -11,6 +11,7 @@ import PyCQP_interface
 import pandas as pd
 import numpy as np
 import datetime
+import sqlite3
 import random
 import ujson
 import ast
@@ -21,12 +22,13 @@ import os
 def f(corpus,query,allTokensDc,diag):
     """
     Envoi de la requête à CQP et mise en forme des données récupérées
-        entrée : nom du corpus sur lequel la requête sera effectuée et la requête en question
+        entrée : nom du corpus sur lequel la requête sera effectuée, la requête en question, la fréquence totale de l'ensemble des tokens par département et par mois, et le booléen indiquant s'il est nécessaire de récupérer les données pour afficher le diagramme ou non
+        sortie : les données nécessaires à la reconstruction de l'échantillon de résultats, le nombre d'occurrences dans le département, et le nombre d'occurrences par mois dans le département
     """
 
     registry_dir="/usr/local/share/cwb/registry"
-    cqp=PyCQP_interface.CQP(bin='/usr/local/bin/cqp',options='-c -r '+registry_dir)
-    #cqp=PyCQP_interface.CQP(bin='/usr/local/cwb/bin//cqp',options='-c -r '+registry_dir)
+    #cqp=PyCQP_interface.CQP(bin='/usr/local/bin/cqp',options='-c -r '+registry_dir)
+    cqp=PyCQP_interface.CQP(bin='/usr/local/cwb/bin//cqp',options='-c -r '+registry_dir)
     corpus_name=splitext(basename(corpus))[0].upper()
     dep=corpus_name.split("_")[1].upper()
     if (re.match(r"^\d$",dep)) :
@@ -75,7 +77,7 @@ def f(corpus,query,allTokensDc,diag):
 
         resultDep[dep] = {"results":results, "nbTotalResults":rsize, "dc":dc}
 
-        print(dep)
+        #print(dep)
 
         return resultDep
 
@@ -168,14 +170,29 @@ def getData():
     -----------------------------------------------
     Entrée -> requête
     Sortie -> dictionnaire contenant :
-        - Un extrait des résultats obtenus pour le motif recherché (liste de dictionnaires ; un dictionnaire par résultat)
-        - la spécificité du motif dans chaque département (dictionnaire)
+        - Un extrait des résultats obtenus pour le motif recherché (liste de dictionnaires ; un dictionnaire par résultat) - resultAndSpec["result"]
+        - la spécificité du motif dans chaque département (dictionnaire) - resultAndSpec["specif"]
+        - le nombre total de résultats (int) - resultAndSpec["nbResults"]
+        - le nombre d'occurrences par département (dictionnaire) - resultAndSpec["nbOccurrences"]
+        - le nombre d'occurrences par mois et par département (liste de dictionnaires) - resultAndSpec["dc"]
 """
 @app.route('/query', methods=["POST"])
 def query():
     diag = request.form["diag"]
     query=request.form["query"]+";"
     query_result=[]
+    allDc=[]
+
+    # On vérifie que la requête n'a pas déjà été effectuée précédemment. Si c'est le cas, on récupère directement ses résultats (nécéssaires au diagramme) afin de ne pas avoir à refaire les requêtes pour chaque mois et chaque département.
+    if diag == "true" :
+        conn = sqlite3.connect("./static/previousRequests.db")
+        cursor = conn.cursor()
+        cursor.execute("select occByMonthByDep from previousRequests where query=?",(query,))
+        r = cursor.fetchone()
+        if r is not None :
+            allDc=ujson.loads(r[0])
+            diag = "false";
+        conn.close()
 
     # Récupération de la fréquence de l'ensemble des tokens (par date et departement)
     file = open("static/allTokensDic", "r")
@@ -204,7 +221,6 @@ def query():
         freqParDepartement = defaultdict(int)
         # Construction d'un dataframe contenant la fréquence du motif recherché dans chaque département
         # récupération de l'ensemble des résultats dans une seule et même liste
-        allDc=[]
         for depResult in query_result :
             for codeDep in depResult :
                 # Récupération des fréquences par date et par département dans une même liste
@@ -320,6 +336,17 @@ def query():
                 resultsExtract.append(result)
 
         #print(datetime.datetime.now()-start_time)
+
+        # si les occurences/mois/dep ont été récupérées, on les enregistre dans la base de données pour ne pas avoir à refaire toutes les requêtes la fois prochaine
+        if diag == "true" :
+            try :
+                conn = sqlite3.connect("./static/previousRequests.db")
+                cursor = conn.cursor()
+                cursor.execute("INSERT INTO previousRequests VALUES (?,?)", (query,ujson.dumps(allDc)))
+                conn.commit()
+                conn.close()
+            except :
+                pass
 
         resultAndSpec = {}
         resultAndSpec["result"]=resultsExtract
