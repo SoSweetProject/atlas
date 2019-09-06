@@ -7,11 +7,11 @@ from scipy.stats import hypergeom
 from multiprocessing import Pool
 from datetime import datetime
 from CWB.CL import Corpus
+from joblib import Memory
 import PyCQP_interface
 import pandas as pd
 import numpy as np
 import datetime
-import sqlite3
 import random
 import ujson
 import ast
@@ -19,7 +19,22 @@ import sys
 import re
 import os
 
-def f(corpus,query,allTokensDc,diag):
+# Récupération de la fréquence de l'ensemble des tokens (par date et departement)
+file = open("static/allTokensDic", "r")
+fAllTokens = file.read()
+allTokensDc = ast.literal_eval(fAllTokens)
+
+def cqpQuery(param_list) :
+    try :
+        pool = Pool(processes=None)
+        query_result = pool.starmap(f, param_list)
+    finally:
+        pool.close()
+        pool.join()
+
+    return query_result
+
+def f(corpus,query,diag):
     """
     Envoi de la requête à CQP et mise en forme des données récupérées
         entrée : nom du corpus sur lequel la requête sera effectuée, la requête en question, la fréquence totale de l'ensemble des tokens par département et par mois, et le booléen indiquant s'il est nécessaire de récupérer les données pour afficher le diagramme ou non
@@ -157,6 +172,11 @@ def reconstituteString(tok_list) :
 
 app = Flask(__name__)
 
+# pour stocker les résultats des requêtes déjà effectuées
+location = 'static/cachedir'
+memory = Memory(location, verbose=0, compress=True)
+cqpQuery = memory.cache(cqpQuery)
+
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -183,34 +203,11 @@ def query():
     query_result=[]
     allDc=[]
 
-    # On vérifie que la requête n'a pas déjà été effectuée précédemment. Si c'est le cas, on récupère directement ses résultats (nécéssaires au diagramme) afin de ne pas avoir à refaire les requêtes pour chaque mois et chaque département.
-    if diag == "true" :
-        conn = sqlite3.connect("./static/previousRequests.db")
-        cursor = conn.cursor()
-        cursor.execute("select occByMonthByDep from previousRequests where query=?",(query,))
-        r = cursor.fetchone()
-        if r is not None :
-            allDc=ujson.loads(r[0])
-            diag = "false";
-        conn.close()
-
-    # Récupération de la fréquence de l'ensemble des tokens (par date et departement)
-    file = open("static/allTokensDic", "r")
-    fAllTokens = file.read()
-    allTokensDc = ast.literal_eval(fAllTokens)
-
-    corpus_list = [("dep_1",query,allTokensDc,diag), ("dep_10",query,allTokensDc,diag), ("dep_11",query,allTokensDc,diag), ("dep_12",query,allTokensDc,diag), ("dep_13",query,allTokensDc,diag), ("dep_14",query,allTokensDc,diag), ("dep_15",query,allTokensDc,diag), ("dep_16",query,allTokensDc,diag), ("dep_17",query,allTokensDc,diag), ("dep_18",query,allTokensDc,diag), ("dep_19",query,allTokensDc,diag), ("dep_2",query,allTokensDc,diag), ("dep_21",query,allTokensDc,diag), ("dep_22",query,allTokensDc,diag), ("dep_23",query,allTokensDc,diag), ("dep_24",query,allTokensDc,diag), ("dep_25",query,allTokensDc,diag), ("dep_26",query,allTokensDc,diag), ("dep_27",query,allTokensDc,diag), ("dep_28",query,allTokensDc,diag), ("dep_29",query,allTokensDc,diag), ("dep_2a",query,allTokensDc,diag), ("dep_2b",query,allTokensDc,diag), ("dep_3",query,allTokensDc,diag), ("dep_30",query,allTokensDc,diag), ("dep_31",query,allTokensDc,diag), ("dep_32",query,allTokensDc,diag), ("dep_33",query,allTokensDc,diag), ("dep_34",query,allTokensDc,diag), ("dep_35",query,allTokensDc,diag), ("dep_36",query,allTokensDc,diag), ("dep_37",query,allTokensDc,diag), ("dep_38",query,allTokensDc,diag), ("dep_39",query,allTokensDc,diag), ("dep_4",query,allTokensDc,diag), ("dep_40",query,allTokensDc,diag), ("dep_41",query,allTokensDc,diag), ("dep_42",query,allTokensDc,diag), ("dep_43",query,allTokensDc,diag), ("dep_44",query,allTokensDc,diag), ("dep_45",query,allTokensDc,diag), ("dep_46",query,allTokensDc,diag), ("dep_47",query,allTokensDc,diag), ("dep_48",query,allTokensDc,diag), ("dep_49",query,allTokensDc,diag), ("dep_5",query,allTokensDc,diag), ("dep_50",query,allTokensDc,diag), ("dep_51",query,allTokensDc,diag), ("dep_52",query,allTokensDc,diag), ("dep_53",query,allTokensDc,diag), ("dep_54",query,allTokensDc,diag), ("dep_55",query,allTokensDc,diag), ("dep_56",query,allTokensDc,diag), ("dep_57",query,allTokensDc,diag), ("dep_58",query,allTokensDc,diag), ("dep_59",query,allTokensDc,diag), ("dep_6",query,allTokensDc,diag), ("dep_60",query,allTokensDc,diag), ("dep_61",query,allTokensDc,diag), ("dep_62",query,allTokensDc,diag), ("dep_63",query,allTokensDc,diag), ("dep_64",query,allTokensDc,diag), ("dep_65",query,allTokensDc,diag), ("dep_66",query,allTokensDc,diag), ("dep_67",query,allTokensDc,diag), ("dep_68",query,allTokensDc,diag), ("dep_69",query,allTokensDc,diag), ("dep_7",query,allTokensDc,diag), ("dep_70",query,allTokensDc,diag), ("dep_71",query,allTokensDc,diag), ("dep_72",query,allTokensDc,diag), ("dep_73",query,allTokensDc,diag), ("dep_74",query,allTokensDc,diag), ("dep_75",query,allTokensDc,diag), ("dep_76",query,allTokensDc,diag), ("dep_77",query,allTokensDc,diag), ("dep_78",query,allTokensDc,diag), ("dep_79",query,allTokensDc,diag), ("dep_8",query,allTokensDc,diag), ("dep_80",query,allTokensDc,diag), ("dep_81",query,allTokensDc,diag), ("dep_82",query,allTokensDc,diag), ("dep_83",query,allTokensDc,diag), ("dep_84",query,allTokensDc,diag), ("dep_85",query,allTokensDc,diag), ("dep_86",query,allTokensDc,diag), ("dep_87",query,allTokensDc,diag), ("dep_88",query,allTokensDc,diag), ("dep_89",query,allTokensDc,diag), ("dep_9",query,allTokensDc,diag), ("dep_90",query,allTokensDc,diag), ("dep_91",query,allTokensDc,diag), ("dep_92",query,allTokensDc,diag), ("dep_93",query,allTokensDc,diag), ("dep_94",query,allTokensDc,diag), ("dep_95",query,allTokensDc,diag)]
+    corpus_list = [("dep_1",query,diag), ("dep_10",query,diag), ("dep_11",query,diag), ("dep_12",query,diag), ("dep_13",query,diag), ("dep_14",query,diag), ("dep_15",query,diag), ("dep_16",query,diag), ("dep_17",query,diag), ("dep_18",query,diag), ("dep_19",query,diag), ("dep_2",query,diag), ("dep_21",query,diag), ("dep_22",query,diag), ("dep_23",query,diag), ("dep_24",query,diag), ("dep_25",query,diag), ("dep_26",query,diag), ("dep_27",query,diag), ("dep_28",query,diag), ("dep_29",query,diag), ("dep_2a",query,diag), ("dep_2b",query,diag), ("dep_3",query,diag), ("dep_30",query,diag), ("dep_31",query,diag), ("dep_32",query,diag), ("dep_33",query,diag), ("dep_34",query,diag), ("dep_35",query,diag), ("dep_36",query,diag), ("dep_37",query,diag), ("dep_38",query,diag), ("dep_39",query,diag), ("dep_4",query,diag), ("dep_40",query,diag), ("dep_41",query,diag), ("dep_42",query,diag), ("dep_43",query,diag), ("dep_44",query,diag), ("dep_45",query,diag), ("dep_46",query,diag), ("dep_47",query,diag), ("dep_48",query,diag), ("dep_49",query,diag), ("dep_5",query,diag), ("dep_50",query,diag), ("dep_51",query,diag), ("dep_52",query,diag), ("dep_53",query,diag), ("dep_54",query,diag), ("dep_55",query,diag), ("dep_56",query,diag), ("dep_57",query,diag), ("dep_58",query,diag), ("dep_59",query,diag), ("dep_6",query,diag), ("dep_60",query,diag), ("dep_61",query,diag), ("dep_62",query,diag), ("dep_63",query,diag), ("dep_64",query,diag), ("dep_65",query,diag), ("dep_66",query,diag), ("dep_67",query,diag), ("dep_68",query,diag), ("dep_69",query,diag), ("dep_7",query,diag), ("dep_70",query,diag), ("dep_71",query,diag), ("dep_72",query,diag), ("dep_73",query,diag), ("dep_74",query,diag), ("dep_75",query,diag), ("dep_76",query,diag), ("dep_77",query,diag), ("dep_78",query,diag), ("dep_79",query,diag), ("dep_8",query,diag), ("dep_80",query,diag), ("dep_81",query,diag), ("dep_82",query,diag), ("dep_83",query,diag), ("dep_84",query,diag), ("dep_85",query,diag), ("dep_86",query,diag), ("dep_87",query,diag), ("dep_88",query,diag), ("dep_89",query,diag), ("dep_9",query,diag), ("dep_90",query,diag), ("dep_91",query,diag), ("dep_92",query,diag), ("dep_93",query,diag), ("dep_94",query,diag), ("dep_95",query,diag)]
 
     # Ici, autant de processus qu'indiqués en argument de Pool vont se partager les tâches (récupérer pour chaque département le résultat de la requête cqp)
-
     #start_time = datetime.datetime.now()
-
-    try :
-        pool = Pool(processes=None)
-        query_result = pool.starmap(f, corpus_list)
-    finally:
-        pool.close()
-        pool.join()
+    query_result = cqpQuery(corpus_list)
 
     if query_result[0]==False :
         return "Erreur de syntaxe"
@@ -336,17 +333,6 @@ def query():
                 resultsExtract.append(result)
 
         #print(datetime.datetime.now()-start_time)
-
-        # si les occurences/mois/dep ont été récupérées, on les enregistre dans la base de données pour ne pas avoir à refaire toutes les requêtes la fois prochaine
-        if diag == "true" :
-            try :
-                conn = sqlite3.connect("./static/previousRequests.db")
-                cursor = conn.cursor()
-                cursor.execute("INSERT INTO previousRequests VALUES (?,?)", (query,ujson.dumps(allDc)))
-                conn.commit()
-                conn.close()
-            except :
-                pass
 
         resultAndSpec = {}
         resultAndSpec["result"]=resultsExtract
