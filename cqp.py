@@ -12,12 +12,20 @@ import PyCQP_interface
 import pandas as pd
 import numpy as np
 import datetime
+import logging
 import random
 import ujson
 import ast
 import sys
 import re
 import os
+
+# log
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+handler = logging.FileHandler("static/cqp_logFile.log")
+handler.setFormatter(logging.Formatter("%(asctime)s; %(levelname)s; %(message)s"))
+logger.addHandler(handler)
 
 # Récupération de la fréquence de l'ensemble des tokens (par date et departement)
 file = open("static/allTokensDic", "r")
@@ -341,5 +349,7 @@ def query():
         resultAndSpec["nbOccurrences"]=freqParDepartement
         resultAndSpec["dc"]=allDc
         resultAndSpec=ujson.dumps(resultAndSpec)
+
+        logger.info("query:%s, diag:%s."%(query, diag))
 
         return resultAndSpec
