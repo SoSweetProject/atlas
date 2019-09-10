@@ -50,8 +50,8 @@ def f(corpus,query,diag):
     """
 
     registry_dir="/usr/local/share/cwb/registry"
-    #cqp=PyCQP_interface.CQP(bin='/usr/local/bin/cqp',options='-c -r '+registry_dir)
-    cqp=PyCQP_interface.CQP(bin='/usr/local/cwb/bin//cqp',options='-c -r '+registry_dir)
+    cqp=PyCQP_interface.CQP(bin='/usr/local/bin/cqp',options='-c -r '+registry_dir)
+    #cqp=PyCQP_interface.CQP(bin='/usr/local/cwb/bin//cqp',options='-c -r '+registry_dir)
     corpus_name=splitext(basename(corpus))[0].upper()
     dep=corpus_name.split("_")[1].upper()
     if (re.match(r"^\d$",dep)) :
@@ -79,7 +79,7 @@ def f(corpus,query,diag):
             corpusDates = ["2014-06", "2014-07", "2014-08", "2014-09", "2014-10", "2014-11", "2014-12", "2015-01", "2015-02", "2015-03", "2015-04", "2015-05", "2015-06", "2016-02", "2016-03", "2016-04", "2016-05", "2016-06", "2016-07", "2016-08", "2016-09", "2016-10", "2016-11", "2016-12", "2017-01", "2017-02", "2017-03", "2017-04", "2017-05", "2017-06", "2017-07", "2017-08", "2017-09", "2017-10", "2017-11", "2017-12", "2018-01", "2018-02", "2018-03"]
 
             for d in corpusDates :
-                cqp.Query(query[:-1]+'::match.text_date="'+d+'.*";')
+                cqp.Query(query+'::match.text_date="'+d+'.*" within text;')
                 rsizeD=int(cqp.Exec("size Last;"))
 
                 # Récupération de la fréquence de tous les tokens
@@ -90,7 +90,7 @@ def f(corpus,query,diag):
                 dicDC={"date":d, "dep":dep, "freq":rsizeD, "freqAllTokens":freqAllTokens}
                 dc.append(dicDC)
 
-        cqp.Query(query)
+        cqp.Query(query+"within text;")
         rsize=int(cqp.Exec("size Last;"))
         results=cqp.Dump(first=0,last=20)
         #cqp.Exec("sort Last by word;")
@@ -207,7 +207,7 @@ def getData():
 @app.route('/query', methods=["POST"])
 def query():
     diag = request.form["diag"]
-    query=request.form["query"]+";"
+    query=request.form["query"]
     query_result=[]
     allDc=[]
 
