@@ -146,44 +146,32 @@ function responseDisplay(response) {
     var depDim = occXFil.dimension(function(d) {
         return d.dep;
     });
-    var occPerMonth = dateDim.group().reduceSum(function(d) {
-      return d.freq;
-    });
-    var reprPatternPerMonth = dateDim.group().reduceSum(function(d) {
-      var reprPattern = d.freq/d.freqAllTokens;
-      if (isNaN(reprPattern)) {
-        reprPattern = 0;
-      };
-      return reprPattern;
-    });
     var occPerDep = depDim.group().reduceSum(function(d) {
       return d.freq;
     });
     var occPerDepAllTokens = depDim.group().reduceSum(function(d) {
       return d.freqAllTokens;
     });
-    var totalReprPattern = occXFil.groupAll().reduceSum(function(d) {
-      var reprPattern = d.freq/d.freqAllTokens;
-      if (isNaN(reprPattern)) {
-        reprPattern = 0;
-      }
-      return reprPattern;
-    }).value();
+
+    // Afficher les spécificités par mois sur le diagramme
+    var specifByDate_crossfilter = crossfilter(response["specifByDate"]);
+    var dateDim2 = specifByDate_crossfilter.dimension(function(d) {
+        return d3.timeParse("%Y-%m")(d.date);
+    });
+    var specifByDate = dateDim2.group().reduceSum(function(d) {
+      return d.spec;
+    });
 
     chart
       .dimension(dateDim)
-      .group(reprPatternPerMonth)
+      .group(specifByDate)
       .elasticY(true)
       .x(d3.scaleTime().domain([new Date(2014, 5, 1), new Date(2018, 3, 1)]))
       .xUnits(function() {return 100})
-      .colors(d3.scaleOrdinal().domain(["higher","lower"])
-                              .range(["#955467","#597493"]))
+      .colors(d3.scaleOrdinal().domain([0,1,2,3,4,5,6,7,8,9,10])
+                              .range(['#053061CC', '#2166acCC', '#4393c3CC', '#92c5deCC', '#d1e5f0CC', '#f7f7f7CC', '#fddbc7CC', '#f4a582CC', '#d6604dCC', '#b2182bCC', '#67001fCC']))
       .colorAccessor(function(d) {
-          if(d.value > totalReprPattern/39) {
-            return "higher";
-          } else {
-            return "lower";
-          }
+          return(parseInt((d.value + 10) / 2))
         })
       .brushOn(true)
       .margins({left: 50, top: 20, right: 10, bottom: 20})
@@ -227,9 +215,9 @@ function responseDisplay(response) {
       }
       nbOccurrencesSelection = Object.values(freqByDep).reduce((a, b) => a + b);
 
-      // Affichage du nombre d'occurences dans la sélection
+      // Affichage du nombre d'occurrences dans la sélection
       document.getElementById("nbOccurrences").innerHTML = ""
-      document.getElementById("nbOccurrences").append(new Intl.NumberFormat().format(response["nbResults"])+" occurrences dans le corpus ("+nbOccurrencesSelection+" dans la sélection)");
+      document.getElementById("nbOccurrences").append(new Intl.NumberFormat().format(response["nbResults"])+" occurrences dans le corpus ("+new Intl.NumberFormat().format(nbOccurrencesSelection)+" dans la sélection)");
 
       // Coloration de la carte en fonction des spécificités du motif recherché par département et dans la période sélectionnée
       departements.eachLayer(function(layer) {
@@ -271,7 +259,7 @@ function responseDisplay(response) {
 
   // affichade du nombre d'occurrences trouvées
   document.getElementById("nbOccurrences").innerHTML = ""
-  document.getElementById("nbOccurrences").append(nbOccurrences+" occurrences dans le corpus");
+  document.getElementById("nbOccurrences").append(new Intl.NumberFormat().format(nbOccurrences)+" occurrences dans le corpus");
 
   // Coloration de la carte en fonction des spécificités du motif recherché par département
   departements.eachLayer(function(layer) {

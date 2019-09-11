@@ -107,42 +107,48 @@ def f(corpus,query,diag):
     except Exception as e :
         return False
 
-def specificities(freqMotifParDep) :
+def specificities(freqMotifParD,unit) :
     """
-        Calcule la spécificité du motif dans chaque département
-            - entrée : dataframe contenant la fréquence du motif recherché par département
-            - sortie : dictionnaire contenant pour chaque département la spécificité du motif
+        Calcule la spécificité du motif dans chaque département/date
+            - entrée : dataframe contenant la fréquence du motif recherché par département/date
+            - sortie : dictionnaire contenant pour chaque département/date la spécificité du motif
     """
 
     freqTot = 31868064
-    freqTotParDep = pd.read_hdf('./static/freqByDep.hdf', 'freqTokensByDep')
-    freqTotMotif = freqMotifParDep.sum().sum()
-    df_freqTotMotif = pd.DataFrame(freqMotifParDep.sum(axis=1), columns=["0"])
 
-    # Calcul de la fréquence attendue du motif dans chaque département
-    expectedCounts = df_freqTotMotif.dot(freqTotParDep)/freqTot
-    specif = freqMotifParDep.copy()
+    if unit == "dep" :
+        freqTotParD = pd.read_hdf('./static/freqByDep.hdf', 'freqTokensByDep')
+    else :
+        freqTotParD = {'2014-06': 1281304, '2014-07': 3052340, '2014-08': 2071458, '2014-09': 3258429, '2014-10': 2884758, '2014-11': 2658469, '2014-12': 1775167, '2015-01': 1398820, '2015-02': 2525192, '2015-03': 858732, '2015-04': 2527688, '2015-05': 3756662, '2015-06': 886843, '2016-02': 74474, '2016-03': 116072, '2016-04': 114956, '2016-05': 100259, '2016-06': 59248, '2016-07': 72920, '2016-08': 106720, '2016-09': 99928, '2016-10': 66127, '2016-11': 89694, '2016-12': 83990, '2017-01': 110474, '2017-02': 114353, '2017-03': 131706, '2017-04': 50000, '2017-05': 8453, '2017-06': 111296, '2017-07': 145444, '2017-08': 159090, '2017-09': 131391, '2017-10': 257807, '2017-11': 182684, '2017-12': 153895, '2018-01': 119240, '2018-02': 131928, '2018-03': 140053}
+        freqTotParD = pd.DataFrame(freqTotParD, index=["0"]).fillna(0)
+
+    freqTotMotif = freqMotifParD.sum().sum()
+    df_freqTotMotif = pd.DataFrame(freqMotifParD.sum(axis=1), columns=["0"])
+
+    # Calcul de la fréquence attendue du motif dans chaque département/date
+    expectedCounts = df_freqTotMotif.dot(freqTotParD)/freqTot
+    specif = freqMotifParD.copy()
 
     """
-        Pour chaque département, la spécificité du motif est calculée à partir de :
-            - la fréquence du motif dans le département en question (à partir de freqMotifParDep)
+        Pour chaque département/date, la spécificité du motif est calculée à partir de :
+            - la fréquence du motif dans le département/date en question (à partir de freqMotifParD)
             - la fréquence totale de tous les tokens (freqTot)
             - la fréquence totale du motif (freqTotMotif)
-            - la fréquence totale de tous les tokens dans le département (à partir de freqTotParDep)
+            - la fréquence totale de tous les tokens dans le département/date (à partir de freqTotParD)
     """
-    for dep in freqMotifParDep.columns :
-        if (freqMotifParDep.loc["freq",dep]<expectedCounts.loc["freq",dep]) :
-            specif.loc["freq",dep]=hypergeom.cdf(freqMotifParDep.loc["freq",dep], freqTot, freqTotMotif, freqTotParDep.transpose().loc[dep])
+    for d in freqMotifParD.columns :
+        if (freqMotifParD.loc["freq",d]<expectedCounts.loc["freq",d]) :
+            specif.loc["freq",d]=hypergeom.cdf(freqMotifParD.loc["freq",d], freqTot, freqTotMotif, freqTotParD.transpose().loc[d])
         else:
-            specif.loc["freq",dep]=1-hypergeom.cdf(freqMotifParDep.loc["freq",dep]-1, freqTot, freqTotMotif, freqTotParDep.transpose().loc[dep])
+            specif.loc["freq",d]=1-hypergeom.cdf(freqMotifParD.loc["freq",d]-1, freqTot, freqTotMotif, freqTotParD.transpose().loc[d])
 
     specif=np.log10(specif)
-    specif[freqMotifParDep>=expectedCounts]=-specif[freqMotifParDep>=expectedCounts]
+    specif[freqMotifParD>=expectedCounts]=-specif[freqMotifParD>=expectedCounts]
 
     # Les valeurs qui ne sont pas entre -10 et 10 sont tronquées
-    for dep in specif :
-        specif.loc[specif[dep] > 10,dep] = 10
-        specif.loc[specif[dep] < -10,dep] = -10
+    for d in specif :
+        specif.loc[specif[d] > 10,d] = 10
+        specif.loc[specif[d] < -10,d] = -10
 
     specif.rename(index={"freq":"specif"},inplace=True)
     specif = pd.DataFrame.to_dict(specif)
@@ -206,9 +212,11 @@ def getData():
 """
 @app.route('/query', methods=["POST"])
 def query():
+
     diag = request.form["diag"]
     query=request.form["query"]
     query_result=[]
+    specByDate=[]
     allDc=[]
 
     corpus_list = [("dep_1",query,diag), ("dep_10",query,diag), ("dep_11",query,diag), ("dep_12",query,diag), ("dep_13",query,diag), ("dep_14",query,diag), ("dep_15",query,diag), ("dep_16",query,diag), ("dep_17",query,diag), ("dep_18",query,diag), ("dep_19",query,diag), ("dep_2",query,diag), ("dep_21",query,diag), ("dep_22",query,diag), ("dep_23",query,diag), ("dep_24",query,diag), ("dep_25",query,diag), ("dep_26",query,diag), ("dep_27",query,diag), ("dep_28",query,diag), ("dep_29",query,diag), ("dep_2a",query,diag), ("dep_2b",query,diag), ("dep_3",query,diag), ("dep_30",query,diag), ("dep_31",query,diag), ("dep_32",query,diag), ("dep_33",query,diag), ("dep_34",query,diag), ("dep_35",query,diag), ("dep_36",query,diag), ("dep_37",query,diag), ("dep_38",query,diag), ("dep_39",query,diag), ("dep_4",query,diag), ("dep_40",query,diag), ("dep_41",query,diag), ("dep_42",query,diag), ("dep_43",query,diag), ("dep_44",query,diag), ("dep_45",query,diag), ("dep_46",query,diag), ("dep_47",query,diag), ("dep_48",query,diag), ("dep_49",query,diag), ("dep_5",query,diag), ("dep_50",query,diag), ("dep_51",query,diag), ("dep_52",query,diag), ("dep_53",query,diag), ("dep_54",query,diag), ("dep_55",query,diag), ("dep_56",query,diag), ("dep_57",query,diag), ("dep_58",query,diag), ("dep_59",query,diag), ("dep_6",query,diag), ("dep_60",query,diag), ("dep_61",query,diag), ("dep_62",query,diag), ("dep_63",query,diag), ("dep_64",query,diag), ("dep_65",query,diag), ("dep_66",query,diag), ("dep_67",query,diag), ("dep_68",query,diag), ("dep_69",query,diag), ("dep_7",query,diag), ("dep_70",query,diag), ("dep_71",query,diag), ("dep_72",query,diag), ("dep_73",query,diag), ("dep_74",query,diag), ("dep_75",query,diag), ("dep_76",query,diag), ("dep_77",query,diag), ("dep_78",query,diag), ("dep_79",query,diag), ("dep_8",query,diag), ("dep_80",query,diag), ("dep_81",query,diag), ("dep_82",query,diag), ("dep_83",query,diag), ("dep_84",query,diag), ("dep_85",query,diag), ("dep_86",query,diag), ("dep_87",query,diag), ("dep_88",query,diag), ("dep_89",query,diag), ("dep_9",query,diag), ("dep_90",query,diag), ("dep_91",query,diag), ("dep_92",query,diag), ("dep_93",query,diag), ("dep_94",query,diag), ("dep_95",query,diag)]
@@ -239,7 +247,7 @@ def query():
         # calcul des spécificités
         freqParDepartementOrdered = OrderedDict(sorted(freqParDepartement.items(), key=lambda t: t[0]))
         df_queryFreq = pd.DataFrame(freqParDepartementOrdered, index=["freq"]).fillna(0)
-        specif = specificities(df_queryFreq)
+        specif = specificities(df_queryFreq, "dep")
 
         resultsExtract = []
         registry_dir="/usr/local/share/cwb/registry"
@@ -341,6 +349,19 @@ def query():
                 resultsExtract.append(result)
 
         #print(datetime.datetime.now()-start_time)
+        if diag == "true" :
+            # calcul des spécificités par date
+            freqMotifParDate = {}
+            for dic in allDc :
+                if dic["date"] not in freqMotifParDate :
+                    freqMotifParDate[dic["date"]] = dic["freq"]
+                else :
+                    freqMotifParDate[dic["date"]] += dic["freq"]
+            freqMotifParDate = pd.DataFrame(freqMotifParDate, index=["freq"]).fillna(0)
+            specByDate_temp = specificities(freqMotifParDate, "date")
+
+            for e in specByDate_temp :
+                specByDate.append({"date":e, "spec":specByDate_temp[e]["specif"]})
 
         resultAndSpec = {}
         resultAndSpec["result"]=resultsExtract
@@ -348,6 +369,7 @@ def query():
         resultAndSpec["nbResults"]=int(df_queryFreq.sum().sum())
         resultAndSpec["nbOccurrences"]=freqParDepartement
         resultAndSpec["dc"]=allDc
+        resultAndSpec["specifByDate"]=specByDate
         resultAndSpec=ujson.dumps(resultAndSpec)
 
         logger.info("query:%s, diag:%s."%(query, diag))
