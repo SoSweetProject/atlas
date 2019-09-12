@@ -200,15 +200,15 @@ function responseDisplay(response) {
         // Récupération de la fréquence de tous les tokens dans le département
         n = _.findWhere(selectionOccPerDepAllTokens, {key: dep})["value"];
         // Calcul de la spécificité
-        if (k > n * K / N) {
-          specif = Math.abs(Math.log10(jStat.hypgeom.pdf(k, N, K, n)))
-          if (specif > 10) {
-            specif=10
+        if (k < n * K / N) {
+          specif = -Math.abs(Math.log10(jStat.hypgeom.cdf(k, N, K, n)))
+          if (specif < -10) {
+            specif=-10
           }
         } else {
-          specif = -Math.abs(Math.log10(jStat.hypgeom.pdf(k, N, K, n)))
-          if (specif < -10) {
-            specif=-10;
+          specif = Math.abs(Math.log10(1-jStat.hypgeom.cdf(k-1, N, K, n)))
+          if (specif > 10) {
+            specif=10;
           }
         }
         specifByDep[dep.toString()]=specif;

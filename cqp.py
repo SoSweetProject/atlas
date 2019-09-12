@@ -153,6 +153,8 @@ def specificities(freqMotifParD,unit) :
     specif.rename(index={"freq":"specif"},inplace=True)
     specif = pd.DataFrame.to_dict(specif)
 
+    #print(specif)
+
     return specif
 
 # reconstitue les chaînes de caractères à partir d'une liste de tokens
