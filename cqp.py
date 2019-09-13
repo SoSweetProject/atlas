@@ -90,7 +90,7 @@ def f(corpus,query,diag):
                 dicDC={"date":d, "dep":dep, "freq":rsizeD, "freqAllTokens":freqAllTokens}
                 dc.append(dicDC)
 
-        cqp.Query(query+"within text;")
+        cqp.Query(query+" within text;")
         rsize=int(cqp.Exec("size Last;"))
         results=cqp.Dump(first=0,last=20)
         #cqp.Exec("sort Last by word;")
@@ -374,6 +374,6 @@ def query():
         resultAndSpec["specifByDate"]=specByDate
         resultAndSpec=ujson.dumps(resultAndSpec)
 
-        logger.info("query:%s, diag:%s."%(query, diag))
+        logger.info("ip : %s, query : %s, diag : %s."%(str(request.remote_addr),query, diag))
 
         return resultAndSpec
