@@ -2,3 +2,4 @@ venv/
 __pycache__/
 static/cachedir/
 static/cqp_logFile.log
+.dockerignore

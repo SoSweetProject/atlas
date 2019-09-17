@@ -295,7 +295,7 @@ function resetDiagramme(chart,nbOccurrences) {
   chart.filterAll();
   dc.redrawAll();
   document.getElementById("nbOccurrences").innerHTML = ""
-  document.getElementById("nbOccurrences").append(nbOccurrences+" occurrences dans le corpus");
+  document.getElementById("nbOccurrences").append(new Intl.NumberFormat().format(nbOccurrences)+" occurrences dans le corpus");
 }
 
 $(document).ready(initTable())
