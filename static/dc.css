@@ -3,6 +3,7 @@
   stroke-opacity: 0.5; }
 
 div.dc-chart {
+  width: 100%;
   float: left; }
 
 .dc-chart rect.bar {

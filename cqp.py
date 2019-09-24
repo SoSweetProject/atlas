@@ -350,7 +350,6 @@ def query():
 
                 resultsExtract.append(result)
 
-        #print(datetime.datetime.now()-start_time)
         if diag == "true" :
             # calcul des spécificités par date
             freqMotifParDate = {}
@@ -373,6 +372,8 @@ def query():
         resultAndSpec["dc"]=allDc
         resultAndSpec["specifByDate"]=specByDate
         resultAndSpec=ujson.dumps(resultAndSpec)
+
+        #print(datetime.datetime.now()-start_time)
 
         logger.info("ip : %s, query : %s, diag : %s."%(str(request.remote_addr),query, diag))
 
