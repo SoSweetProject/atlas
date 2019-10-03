@@ -32,10 +32,16 @@ file = open("static/allTokensDic", "r")
 fAllTokens = file.read()
 allTokensDc = ast.literal_eval(fAllTokens)
 
+def cqpStart() : 
+    registry_dir="/usr/local/share/cwb/registry"
+    global cqp
+    #cqp=PyCQP_interface.CQP(bin='/usr/local/bin/cqp',options='-c -r '+registry_dir)
+    cqp=PyCQP_interface.CQP(bin='/usr/local/cwb/bin//cqp',options='-c -r '+registry_dir)
+
 def cqpQuery(param_list) :
     try :
-        pool = Pool(processes=None)
-        query_result = pool.starmap(f, param_list)
+        pool = Pool(processes=None, initializer=cqpStart)
+        query_result = pool.starmap(f, param_list, chunksize=1)
     finally:
         pool.close()
         pool.join()
@@ -49,9 +55,6 @@ def f(corpus,query,diag):
         sortie : les données nécessaires à la reconstruction de l'échantillon de résultats, le nombre d'occurrences dans le département, et le nombre d'occurrences par mois dans le département
     """
 
-    registry_dir="/usr/local/share/cwb/registry"
-    cqp=PyCQP_interface.CQP(bin='/usr/local/bin/cqp',options='-c -r '+registry_dir)
-    #cqp=PyCQP_interface.CQP(bin='/usr/local/cwb/bin//cqp',options='-c -r '+registry_dir)
     corpus_name=splitext(basename(corpus))[0].upper()
     dep=corpus_name.split("_")[1].upper()
     if (re.match(r"^\d$",dep)) :
@@ -79,24 +82,18 @@ def f(corpus,query,diag):
             corpusDates = ["2014-06", "2014-07", "2014-08", "2014-09", "2014-10", "2014-11", "2014-12", "2015-01", "2015-02", "2015-03", "2015-04", "2015-05", "2015-06", "2016-02", "2016-03", "2016-04", "2016-05", "2016-06", "2016-07", "2016-08", "2016-09", "2016-10", "2016-11", "2016-12", "2017-01", "2017-02", "2017-03", "2017-04", "2017-05", "2017-06", "2017-07", "2017-08", "2017-09", "2017-10", "2017-11", "2017-12", "2018-01", "2018-02", "2018-03"]
 
             for d in corpusDates :
-                cqp.Query(query+'::match.text_date="'+d+'.*" within text;')
+                cqp.Query(query+'::match.text_id="'+d+'.*" within s;')
                 rsizeD=int(cqp.Exec("size Last;"))
 
                 # Récupération de la fréquence de tous les tokens
-                for dicAllTokensDc in allTokensDc :
-                    if dicAllTokensDc["date"]==d and dicAllTokensDc["dep"]==dep :
-                        freqAllTokens=dicAllTokensDc["freq"]
+                freqAllTokens=allTokensDc[d][dep]
 
                 dicDC={"date":d, "dep":dep, "freq":rsizeD, "freqAllTokens":freqAllTokens}
                 dc.append(dicDC)
 
-        cqp.Query(query+" within text;")
+        cqp.Query(query+" within s;")
         rsize=int(cqp.Exec("size Last;"))
         results=cqp.Dump(first=0,last=20)
-        #cqp.Exec("sort Last by word;")
-        cqp.Terminate()
-        # fermeture du processus CQP car sinon ne se ferme pas
-        os.popen("kill -9 " + str(cqp.CQP_process.pid))
 
         resultDep[dep] = {"results":results, "nbTotalResults":rsize, "dc":dc}
 
@@ -221,7 +218,7 @@ def query():
     specByDate=[]
     allDc=[]
 
-    corpus_list = [("dep_75",query,diag), ("dep_59",query,diag), ("dep_91",query,diag), ("dep_57",query,diag), ("dep_69",query,diag), ("dep_13",query,diag), ("dep_93",query,diag), ("dep_92",query,diag), ("dep_62",query,diag), ("dep_33",query,diag), ("dep_67",query,diag), ("dep_6",query,diag), ("dep_94",query,diag), ("dep_45",query,diag), ("dep_77",query,diag), ("dep_31",query,diag), ("dep_34",query,diag), ("dep_14",query,diag), ("dep_95",query,diag), ("dep_60",query,diag), ("dep_44",query,diag), ("dep_54",query,diag), ("dep_78",query,diag), ("dep_83",query,diag), ("dep_35",query,diag), ("dep_72",query,diag), ("dep_38",query,diag), ("dep_76",query,diag), ("dep_80",query,diag), ("dep_51",query,diag), ("dep_27",query,diag), ("dep_22",query,diag), ("dep_86",query,diag), ("dep_56",query,diag), ("dep_37",query,diag), ("dep_29",query,diag), ("dep_2",query,diag), ("dep_87",query,diag), ("dep_21",query,diag), ("dep_28",query,diag), ("dep_50",query,diag), ("dep_74",query,diag), ("dep_63",query,diag), ("dep_49",query,diag), ("dep_17",query,diag), ("dep_68",query,diag), ("dep_66",query,diag), ("dep_11",query,diag), ("dep_85",query,diag), ("dep_42",query,diag), ("dep_30",query,diag), ("dep_64",query,diag), ("dep_8",query,diag), ("dep_41",query,diag), ("dep_71",query,diag), ("dep_3",query,diag), ("dep_25",query,diag), ("dep_73",query,diag), ("dep_26",query,diag), ("dep_53",query,diag), ("dep_18",query,diag), ("dep_84",query,diag), ("dep_88",query,diag), ("dep_58",query,diag), ("dep_16",query,diag), ("dep_40",query,diag), ("dep_10",query,diag), ("dep_36",query,diag), ("dep_55",query,diag), ("dep_2b",query,diag), ("dep_1",query,diag), ("dep_2a",query,diag), ("dep_89",query,diag), ("dep_19",query,diag), ("dep_24",query,diag), ("dep_7",query,diag), ("dep_61",query,diag), ("dep_90",query,diag), ("dep_81",query,diag), ("dep_47",query,diag), ("dep_79",query,diag), ("dep_39",query,diag), ("dep_52",query,diag), ("dep_65",query,diag), ("dep_82",query,diag), ("dep_9",query,diag), ("dep_4",query,diag), ("dep_12",query,diag), ("dep_43",query,diag), ("dep_70",query,diag), ("dep_5",query,diag), ("dep_46",query,diag), ("dep_23",query,diag), ("dep_32",query,diag), ("dep_15",query,diag), ("dep_48",query,diag)]
+    corpus_list = [("depbymonth_75",query,diag), ("depbymonth_59",query,diag), ("depbymonth_91",query,diag), ("depbymonth_57",query,diag), ("depbymonth_69",query,diag), ("depbymonth_13",query,diag), ("depbymonth_93",query,diag), ("depbymonth_92",query,diag), ("depbymonth_62",query,diag), ("depbymonth_33",query,diag), ("depbymonth_67",query,diag), ("depbymonth_6",query,diag), ("depbymonth_94",query,diag), ("depbymonth_45",query,diag), ("depbymonth_77",query,diag), ("depbymonth_31",query,diag), ("depbymonth_34",query,diag), ("depbymonth_14",query,diag), ("depbymonth_95",query,diag), ("depbymonth_60",query,diag), ("depbymonth_44",query,diag), ("depbymonth_54",query,diag), ("depbymonth_78",query,diag), ("depbymonth_83",query,diag), ("depbymonth_35",query,diag), ("depbymonth_72",query,diag), ("depbymonth_38",query,diag), ("depbymonth_76",query,diag), ("depbymonth_80",query,diag), ("depbymonth_51",query,diag), ("depbymonth_27",query,diag), ("depbymonth_22",query,diag), ("depbymonth_86",query,diag), ("depbymonth_56",query,diag), ("depbymonth_37",query,diag), ("depbymonth_29",query,diag), ("depbymonth_2",query,diag), ("depbymonth_87",query,diag), ("depbymonth_21",query,diag), ("depbymonth_28",query,diag), ("depbymonth_50",query,diag), ("depbymonth_74",query,diag), ("depbymonth_63",query,diag), ("depbymonth_49",query,diag), ("depbymonth_17",query,diag), ("depbymonth_68",query,diag), ("depbymonth_66",query,diag), ("depbymonth_11",query,diag), ("depbymonth_85",query,diag), ("depbymonth_42",query,diag), ("depbymonth_30",query,diag), ("depbymonth_64",query,diag), ("depbymonth_8",query,diag), ("depbymonth_41",query,diag), ("depbymonth_71",query,diag), ("depbymonth_3",query,diag), ("depbymonth_25",query,diag), ("depbymonth_73",query,diag), ("depbymonth_26",query,diag), ("depbymonth_53",query,diag), ("depbymonth_18",query,diag), ("depbymonth_84",query,diag), ("depbymonth_88",query,diag), ("depbymonth_58",query,diag), ("depbymonth_16",query,diag), ("depbymonth_40",query,diag), ("depbymonth_10",query,diag), ("depbymonth_36",query,diag), ("depbymonth_55",query,diag), ("depbymonth_2b",query,diag), ("depbymonth_1",query,diag), ("depbymonth_2a",query,diag), ("depbymonth_89",query,diag), ("depbymonth_19",query,diag), ("depbymonth_24",query,diag), ("depbymonth_7",query,diag), ("depbymonth_61",query,diag), ("depbymonth_90",query,diag), ("depbymonth_81",query,diag), ("depbymonth_47",query,diag), ("depbymonth_79",query,diag), ("depbymonth_39",query,diag), ("depbymonth_52",query,diag), ("depbymonth_65",query,diag), ("depbymonth_82",query,diag), ("depbymonth_9",query,diag), ("depbymonth_4",query,diag), ("depbymonth_12",query,diag), ("depbymonth_43",query,diag), ("depbymonth_70",query,diag), ("depbymonth_5",query,diag), ("depbymonth_46",query,diag), ("depbymonth_23",query,diag), ("depbymonth_32",query,diag), ("depbymonth_15",query,diag), ("depbymonth_48",query,diag)]
 
     # Ici, autant de processus qu'indiqués en argument de Pool vont se partager les tâches (récupérer pour chaque département le résultat de la requête cqp)
     #start_time = datetime.datetime.now()
@@ -260,9 +257,9 @@ def query():
             if i<200 :
                 dep = dic["dep"]
                 if (re.match(r"^0\d$",dep)) :
-                    corpus_name = "dep_"+re.match(r"^0(\d)$",dep).group(1).lower()
+                    corpus_name = "depbymonth_"+re.match(r"^0(\d)$",dep).group(1).lower()
                 else :
-                    corpus_name = "dep_"+dep.lower()
+                    corpus_name = "depbymonth_"+dep.lower()
 
                 r = dic["result"]
 
@@ -273,11 +270,7 @@ def query():
                 postags=corpus.attribute("pos","p")
                 lemmas=corpus.attribute("lemma","p")
 
-                sentences=corpus.attribute(b"text","s")
-                id=corpus.attribute(b"text_id","s")
-                dates=corpus.attribute(b"text_date","s")
-                geo=corpus.attribute(b"text_geo","s")
-                users=corpus.attribute(b"text_user","s")
+                sentences=corpus.attribute(b"s","s")
 
                 left_context=[]
                 right_context=[]
@@ -286,13 +279,6 @@ def query():
 
                 # Récupération de la position du début et de la fin du tweet dans lequel le motif a été trouvé
                 s_bounds=sentences.find_pos(end)
-                # Récupérarion de ses attributs (id, date, coordonnées et id de l'utilisateur)
-                id_bounds=id.find_pos(end)
-                date_bounds=dates.find_pos(end)
-                geo_bounds=geo.find_pos(end)
-                user_bounds=users.find_pos(end)
-
-                coord = geo_bounds[-1].decode("utf8").split(", ")
 
                 # récupération de la position des mots des contextes droit et gauche
                 for pos in range(s_bounds[0],s_bounds[1]+1) :
@@ -302,12 +288,7 @@ def query():
                         right_context.append(pos)
 
                 # Construction du dictionnaire qui contiendra les informations qui nous intéressent
-                result={"id" : id_bounds[-1],
-                        "date" : date_bounds[-1].decode("utf8").split("T")[0],
-                        "geo" : coord,
-                        "dep" : dep,
-                        "user" : user_bounds[-1],
-                        "hide_column" : "",
+                result={"hide_column" : "",
                         "left_context" : "",
                         "pattern" : "",
                         "right_context" : ""}

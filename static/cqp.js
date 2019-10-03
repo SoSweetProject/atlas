@@ -98,7 +98,7 @@ function initTable() {
       {
         orderData: [0],
         data: "left_context",
-        width: "37%"
+        width: "40%"
       },
       {
         data: "pattern",
@@ -106,12 +106,8 @@ function initTable() {
       },
       {
         data: "right_context",
-        width: "37%"
-      },
-      {
-        data: "dep",
-        width: "5%"
-      },
+        width: "40%"
+      }
     ],
     "pageLength": 20,
     "bLengthChange": false
