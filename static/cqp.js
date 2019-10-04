@@ -272,7 +272,7 @@ function responseDisplay(response) {
       mouseover: function(e) {
         var popup = L.popup()
           .setLatLng(e.latlng)
-          .setContent("<dt>"+e.target.feature.properties.code +' - '+ e.target.feature.properties.nom +'</dt><dl>'+ response["nbOccurrences"][e.target.feature.properties.code] +' occurrences</dl>')
+          .setContent("<dt>"+e.target.feature.properties.code +' - '+ e.target.feature.properties.nom +'</dt><dl>'+ new Intl.NumberFormat().format(response["nbOccurrences"][e.target.feature.properties.code]) +' occurrences</dl>')
           .openOn(map);
       },
       mouseout: function(e) {
