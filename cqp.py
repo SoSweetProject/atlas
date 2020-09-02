@@ -210,10 +210,6 @@ def query():
                 lemmas=corpus.attribute("lemma","p")
 
                 sentences=corpus.attribute(b"text","s")
-                id=corpus.attribute(b"text_id","s")
-                dates=corpus.attribute(b"text_date","s")
-                geo=corpus.attribute(b"text_geo","s")
-                users=corpus.attribute(b"text_user","s")
 
                 left_context=[]
                 right_context=[]
@@ -222,13 +218,6 @@ def query():
 
                 # Récupération de la position du début et de la fin du tweet dans lequel le motif a été trouvé
                 s_bounds=sentences.find_pos(end)
-                # Récupérarion de ses attributs (id, date, coordonnées et id de l'utilisateur)
-                id_bounds=id.find_pos(end)
-                date_bounds=dates.find_pos(end)
-                geo_bounds=geo.find_pos(end)
-                user_bounds=users.find_pos(end)
-
-                coord = geo_bounds[-1].decode("utf8").split(", ")
 
                 # récupération de la position des mots des contextes droit et gauche
                 for pos in range(s_bounds[0],s_bounds[1]+1) :
@@ -238,11 +227,7 @@ def query():
                         right_context.append(pos)
 
                 # Construction du dictionnaire qui contiendra les informations qui nous intéressent
-                result={"id" : id_bounds[-1],
-                        "date" : date_bounds[-1].decode("utf8").split("T")[0],
-                        "geo" : coord,
-                        "dep" : dep,
-                        "user" : user_bounds[-1],
+                result={"dep" : dep,
                         "hide_column" : "",
                         "left_context" : "",
                         "pattern" : "",
