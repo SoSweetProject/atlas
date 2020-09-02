@@ -3,16 +3,14 @@
 Le site est fait en python (avec Flask), et nécessite au préalable d’avoir cwb d’installé sur sa machine (*http://cwb.sourceforge.net/* ; pour indéxer un corpus, cf. *http://cwb.sourceforge.net/files/CWB_Encoding_Tutorial.pdf*). 
 
 Pour faire tourner le site en local, lancer d’abord les commandes suivantes, dans l'ordre : 
-    *(créer et lancer un environnement virtuel)*
-    - python3 -m venv venv
-    - source venv/bin/activate 
-    - pip install cython 
-    - export CWB_DIR=</chemin/vers/cwb>
-    - pip install -r requirements.txt 
-    *(lancer l’application via Flask)*
-    - export FLASK_APP=cqp.py 
-    - export FLASK_ENV=development 
-    - venv/bin/flask run
+    * python3 -m venv venv
+    * source venv/bin/activate 
+    * pip install cython 
+    * export CWB_DIR=</chemin/vers/cwb>
+    * pip install -r requirements.txt 
+    * export FLASK_APP=cqp.py 
+    * export FLASK_ENV=development 
+    * venv/bin/flask run
 
 ## Contenu 
 
@@ -27,6 +25,7 @@ Pour faire tourner le site en local, lancer d’abord les commandes suivantes, d
         Une fois tous les départements passés en revue, l'ensemble des résultats de chaque département est récupéré dans une liste. 
         
     2. **Calcul des spécificités**. À partir des résultats décrits ci-dessus, un dictionnaire contenant pour chaque département le nombre d'occurence du motif par département est créé (*freqParDepartement*), que l'on transforme en dataframe contenant donc en colonne le numéro des départements et en ligne le nombre d'occurrences trouvées dans chacun d'entre eux (*df_queryFreq*).
+    
 	|      | 01 | 02 | 03 | 04 | 05 | 06 | etc. |  
 	|:---: |:--:|:--:|:--:|:--:|:--:|:--:| :--: |
 	| freq | 1  | 2  | 0  | 1  | 1  | 71 |      |  
