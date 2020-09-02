@@ -1,0 +1,111 @@
+2019-09-09 14:47:27,128; INFO; query:"test";, diag:false.
+2019-09-09 15:23:00,452; INFO; query:".*" ".*";, diag:false.
+2019-09-09 15:24:06,261; INFO; query:".*" ".*" within text;, diag:false.
+2019-09-09 15:26:43,470; INFO; query:".*" ;, diag:false.
+2019-09-09 15:29:20,083; INFO; query:".*" ".*" ".*" within text;, diag:false.
+2019-09-09 15:34:27,474; INFO; query:".*" ".*";, diag:false.
+2019-09-09 15:34:38,052; INFO; query:".*" ".*" within text;, diag:false.
+2019-09-09 15:38:39,066; INFO; query:".*" ".*"* ".*";, diag:false.
+2019-09-09 15:39:21,321; INFO; query:".*" ".*"{3} ".*";, diag:false.
+2019-09-09 15:40:50,433; INFO; query:".*" ".*"{1,5} ".*";, diag:false.
+2019-09-09 15:41:11,454; INFO; query:".*" ".*";, diag:false.
+2019-09-10 09:14:37,821; INFO; query:".*" ".*", diag:false.
+2019-09-10 09:23:01,777; INFO; query:".*" ".*", diag:true.
+2019-09-10 09:24:00,683; INFO; query:[pos="V"] [pos="ADV"], diag:false.
+2019-09-10 09:24:33,798; INFO; query:[lemma="ne"] [pos="V"] [(word="pas"%c) | (word="point"%c)], diag:false.
+2019-09-10 09:24:59,364; INFO; query:[word="j'"] [pos="V"&word="[^aeioué].*"], diag:false.
+2019-09-11 10:21:27,582; INFO; query:"plage", diag:true.
+2019-09-11 10:22:10,656; INFO; query:"plage", diag:true.
+2019-09-11 10:22:48,703; INFO; query:"plage", diag:false.
+2019-09-11 10:22:59,063; INFO; query:"plage", diag:true.
+2019-09-11 10:24:02,634; INFO; query:"plage", diag:false.
+2019-09-11 10:24:12,084; INFO; query:"plage", diag:true.
+2019-09-11 10:33:45,484; INFO; query:".*", diag:true.
+2019-09-11 10:34:03,572; INFO; query:".*", diag:true.
+2019-09-11 10:35:46,165; INFO; query:".*", diag:true.
+2019-09-11 10:35:57,824; INFO; query:".*", diag:false.
+2019-09-12 16:17:19,352; INFO; query:[lemma="ne"] [pos="V"] [(word="pas"%c) | (word="point"%c)], diag:true.
+2019-09-12 16:24:27,891; INFO; query:"bonne" "année", diag:true.
+2019-09-12 16:26:16,233; INFO; query:"bonne" "année", diag:true.
+2019-09-17 09:41:05,592; INFO; ip : 127.0.0.1, query : "rugby", diag : true.
+2019-09-17 09:44:24,458; INFO; ip : 127.0.0.1, query : [pos="V"] [pos="ADV"&word="pas"], diag : true.
+2019-09-17 09:51:34,325; INFO; ip : 127.0.0.1, query : [pos="V"] [pos="ADV"&word="pas"], diag : true.
+2019-09-17 09:53:57,568; INFO; ip : 127.0.0.1, query : "macron"%c, diag : true.
+2019-09-17 09:55:05,429; INFO; ip : 127.0.0.1, query : "présidentielles?"%c, diag : true.
+2019-09-17 09:56:41,880; INFO; ip : 127.0.0.1, query : "noë|el"%c, diag : true.
+2019-09-17 09:57:24,667; INFO; ip : 127.0.0.1, query : "no(ë|e)l"%c, diag : true.
+2019-09-17 09:58:38,968; INFO; ip : 127.0.0.1, query : "p(a|â)ques?"%c, diag : true.
+2019-09-17 10:01:16,469; INFO; ip : 127.0.0.1, query : ".*", diag : true.
+2019-09-17 10:01:52,450; INFO; ip : 127.0.0.1, query : "je", diag : true.
+2019-09-17 10:02:25,877; INFO; ip : 127.0.0.1, query : "je"%c, diag : true.
+2019-09-17 10:06:24,522; INFO; ip : 127.0.0.1, query : "je|j'"%c, diag : true.
+2019-09-17 10:18:59,581; INFO; ip : 127.0.0.1, query : "je|j'"%c, diag : true.
+2019-09-17 10:30:25,449; INFO; ip : 127.0.0.1, query : "je|j'"%c, diag : true.
+2019-09-17 10:30:58,911; INFO; ip : 127.0.0.1, query : "je|j'"%c, diag : true.
+2019-09-17 10:31:29,506; INFO; ip : 127.0.0.1, query : "je|j'"%c, diag : true.
+2019-09-17 13:15:41,592; INFO; ip : 127.0.0.1, query : "braderie"%c, diag : true.
+2019-09-17 13:16:15,244; INFO; ip : 127.0.0.1, query : "frairie"%c, diag : true.
+2019-09-17 13:16:36,673; INFO; ip : 127.0.0.1, query : "mma"%c, diag : true.
+2019-09-17 13:17:15,286; INFO; ip : 127.0.0.1, query : "galette"%c, diag : true.
+2019-09-17 13:17:53,491; INFO; ip : 127.0.0.1, query : "fraises?"%c, diag : true.
+2019-09-17 13:18:45,337; INFO; ip : 127.0.0.1, query : "melons?"%c, diag : true.
+2019-09-17 13:21:52,303; INFO; ip : 127.0.0.1, query : "cr(ê|e|è)pes?"%c, diag : true.
+2019-09-17 13:42:41,921; INFO; ip : 127.0.0.1, query : "no(ë|e)l"%c, diag : true.
+2019-09-17 14:08:25,813; INFO; ip : 127.0.0.1, query : ".*", diag : true.
+2019-09-17 14:11:54,079; INFO; ip : 127.0.0.1, query : ".*", diag : true.
+2019-09-17 14:43:45,136; INFO; ip : 127.0.0.1, query : ".*", diag : true.
+2019-09-18 11:57:38,958; INFO; ip : 127.0.0.1, query : "no(ë|e)l"%c, diag : true.
+2019-09-18 11:57:51,252; INFO; ip : 127.0.0.1, query : "chat", diag : true.
+2019-09-20 08:48:31,850; INFO; ip : 127.0.0.1, query : ".*", diag : true.
+2019-09-20 08:51:12,683; INFO; ip : 127.0.0.1, query : "chat", diag : true.
+2019-09-20 08:54:35,884; INFO; ip : 127.0.0.1, query : [word="t'|j'|j’|t’"%c] [pos="V"&word="[^aehioué].*"%c], diag : true.
+2019-09-20 09:00:32,307; INFO; ip : 127.0.0.1, query : ".*", diag : true.
+2019-09-20 09:03:17,119; INFO; ip : 127.0.0.1, query : [lemma="ne"] [pos="V"] [lemma="pas?|rien"], diag : true.
+2019-09-20 09:05:21,112; INFO; ip : 127.0.0.1, query : [pos="DET"], diag : true.
+2019-09-20 09:15:45,352; INFO; ip : 127.0.0.1, query : "p(â|a)ques?"%c, diag : true.
+2019-09-24 10:38:20,636; INFO; ip : 127.0.0.1, query : ".*", diag : true.
+2019-09-24 10:45:01,944; INFO; ip : 127.0.0.1, query : ".*", diag : true.
+2019-09-24 10:52:40,815; INFO; ip : 127.0.0.1, query : "la", diag : true.
+2019-09-24 11:04:56,932; INFO; ip : 127.0.0.1, query : ".*", diag : true.
+2019-09-24 11:05:58,836; INFO; ip : 127.0.0.1, query : "la", diag : true.
+2019-09-26 13:08:46,763; INFO; ip : 127.0.0.1, query : ".*", diag : true.
+2019-09-26 14:05:40,453; INFO; ip : 127.0.0.1, query : "blabla", diag : true.
+2019-09-30 19:07:47,443; INFO; ip : 127.0.0.1, query : "plage"%c, diag : true.
+2019-09-30 19:11:15,715; INFO; ip : 127.0.0.1, query : [word="t'|j'|j’|t’"%c] [pos="V"&word="[^aehioué].*"%c], diag : false.
+2019-09-30 19:13:10,425; INFO; ip : 127.0.0.1, query : [word="t'|j'|j’|t’"%c] [pos="V"&word="[^aehioué].*"%c], diag : true.
+2019-09-30 19:18:47,719; INFO; ip : 127.0.0.1, query : "sénégal"%c, diag : false.
+2019-09-30 19:20:04,361; INFO; ip : 127.0.0.1, query : "grippe"%c, diag : true.
+2019-09-30 19:21:36,680; INFO; ip : 127.0.0.1, query : "rugby"%c, diag : true.
+2019-09-30 19:22:07,323; INFO; ip : 127.0.0.1, query : "neymar"%c, diag : true.
+2019-09-30 19:24:47,128; INFO; ip : 127.0.0.1, query : "rhume"%c, diag : true.
+2019-09-30 19:26:20,810; INFO; ip : 127.0.0.1, query : "ptn"%c, diag : true.
+2019-09-30 19:30:00,254; INFO; ip : 127.0.0.1, query : "plage" []* "bar", diag : false.
+2019-09-30 19:30:35,062; INFO; ip : 127.0.0.1, query : "plage" []* "soleil", diag : false.
+2019-09-30 19:31:02,594; INFO; ip : 127.0.0.1, query : "mer", diag : false.
+2019-10-03 15:38:56,932; INFO; ip : 127.0.0.1, query : "salut|slt"%c, diag : true.
+2019-10-03 16:05:34,052; INFO; ip : 127.0.0.1, query : "salut|slt"%c, diag : true.
+2019-10-03 16:09:41,765; INFO; ip : 127.0.0.1, query : "plage"%c, diag : true.
+2019-10-03 16:11:10,293; INFO; ip : 127.0.0.1, query : "la" "plage"%c, diag : true.
+2019-10-03 16:14:50,332; INFO; ip : 127.0.0.1, query : [word="t'|j'|j’|t’"%c] [pos="V"&word="[^aehioué].*"%c], diag : true.
+2019-10-03 16:38:36,544; INFO; ip : 127.0.0.1, query : [word="t'|j'|j’|t’"%c] [pos="V"&word="[^aehioué].*"%c], diag : true.
+2019-10-04 11:52:56,411; INFO; ip : 127.0.0.1, query : "chat", diag : true.
+2019-10-04 11:53:18,620; INFO; ip : 127.0.0.1, query : "le", diag : true.
+2019-10-04 11:53:35,046; INFO; ip : 127.0.0.1, query : "le", diag : false.
+2019-10-04 11:53:41,673; INFO; ip : 127.0.0.1, query : "le", diag : true.
+2019-10-04 11:54:36,977; INFO; ip : 127.0.0.1, query : "le", diag : true.
+2019-10-04 11:54:59,972; INFO; ip : 127.0.0.1, query : ".*", diag : false.
+2019-10-04 16:32:44,872; INFO; ip : 127.0.0.1, query : [word="t'|j'|j’|t’"%c] [pos="V"&word="[^aehioué].*"%c], diag : true.
+2019-10-04 16:33:24,285; INFO; ip : 127.0.0.1, query : "plage"%c, diag : true.
+2019-10-04 16:34:10,446; INFO; ip : 127.0.0.1, query : "no(e|ë)l"%c, diag : true.
+2019-10-04 16:35:10,162; INFO; ip : 127.0.0.1, query : "no(e|ë)l"%c, diag : true.
+2019-10-04 16:36:35,116; INFO; ip : 127.0.0.1, query : "insomnies?"%c, diag : true.
+2019-10-04 16:37:37,435; INFO; ip : 127.0.0.1, query : "attentats?"%c, diag : true.
+2019-10-04 16:39:28,038; INFO; ip : 127.0.0.1, query : "violences?"%c "conjugales?"%c, diag : true.
+2019-10-04 16:40:19,070; INFO; ip : 127.0.0.1, query : "je", diag : true.
+2019-10-04 16:41:14,247; INFO; ip : 127.0.0.1, query : "nous", diag : true.
+2019-10-04 16:41:27,721; INFO; ip : 127.0.0.1, query : "tu", diag : true.
+2019-10-04 16:41:49,818; INFO; ip : 127.0.0.1, query : "car", diag : true.
+2019-10-04 16:43:33,771; INFO; ip : 127.0.0.1, query : "dessus", diag : true.
+2019-10-04 16:44:22,478; INFO; ip : 127.0.0.1, query : "de", diag : true.
+2019-10-04 16:51:09,210; INFO; ip : 127.0.0.1, query : "le", diag : true.
+2019-12-03 14:28:48,287; INFO; ip : 127.0.0.1, query : "environnement", diag : true.
