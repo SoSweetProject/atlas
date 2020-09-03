@@ -1,4 +1,5 @@
 # README
+L'atlas a pour but de permettre l'observation des variations linguistiques en France métropolitaine dans un corpus d'environ 2,5 millions de tweets. Il donne ainsi la possibilité de rechercher un motif linguistique et de visualiser sa représentation dans les différents départements (s'il est sur ou sous-représenté dans un ou plusieurs d'entre eux par exemple), ainsi que son contexte d'utilisation.  
 
 Le site est fait en python (avec Flask), et nécessite au préalable d’avoir cwb d’installé sur sa machine (*http://cwb.sourceforge.net/* ; pour indéxer un corpus, cf. *http://cwb.sourceforge.net/files/CWB_Encoding_Tutorial.pdf*). 
 
